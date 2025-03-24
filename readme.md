@@ -1,6 +1,6 @@
 # 🗑️ Sopkalender (iCal Generator for Waste Pickup)
 
-This project generates `.ics` calendar files for Swedish home waste pickup — supporting both **Restavfall** and **Matavfall**.
+This project generates `.ics` calendar files for home waste pickup — supporting both **Restavfall** and **Matavfall**.
 
 You can use the generated `.ics` files to **subscribe in your calendar app** (Google Calendar, Outlook, Apple Calendar, etc) and get reminders for pickup days.
 
@@ -10,9 +10,8 @@ You can use the generated `.ics` files to **subscribe in your calendar app** (Go
 
 - ✅ All-day events  
 - ✅ Supports both specific dates (`YYYY-MM-DD`) and ISO week format (`YYYY-Wnn`)  
-- ✅ Automatically resolves week-based entries to **Tuesdays**  
+- ✅ Automatically resolves week-based entries to **Tuesdays** unless a explicit date is scheduled
 - ✅ Separates **Restavfall** and **Matavfall** into different calendars and also a combined **all** calendar.
-- ✅ Designed for hosting on GitHub Pages  
 
 ---
 
