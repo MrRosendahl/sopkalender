@@ -45,7 +45,7 @@ function generateCalendar(filename, eventList) {
 }
 
 // Convert type + dates to ICS-friendly events
-function createEventsForType(typeKey, dates) {
+function createEventsForType(typeKey, typeKey) {
   const type = WasteType[typeKey];
 
   const typeIcons = {
@@ -53,17 +53,20 @@ function createEventsForType(typeKey, dates) {
     restavfall: '🟩'
   };
 
-  return dates.map(dateStr => ({
-    title: `${typeIcons[typeKey]} ${type.title}`,
-    start: parseDate(dateStr),
-    duration: { days: 1 },
-    status: 'CONFIRMED'
-  }));
+  return schedule
+    .filter(e => e.type === typeKey)
+    .map(e => ({
+      title: `${typeIcons[typeKey]} ${type.title}`,
+      description: e.description || '', // Add the custom description
+      start: parseDate(e.date),
+      duration: { days: 1 },
+      status: 'CONFIRMED'
+    }));
 }
 
 // Generate individual calendars
-const matavfallEvents = createEventsForType('matavfall', schedule.matavfall);
-const restavfallEvents = createEventsForType('restavfall', schedule.restavfall);
+const matavfallEvents = createEventsForType(schedule, 'matavfall');
+const restavfallEvents = createEventsForType(schedule, 'restavfall');
 
 generateCalendar('matavfall.ics', matavfallEvents);
 generateCalendar('restavfall.ics', restavfallEvents);
