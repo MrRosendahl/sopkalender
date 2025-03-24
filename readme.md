@@ -11,19 +11,20 @@ You can use the generated `.ics` files to **subscribe in your calendar app** (Go
 - ✅ All-day events  
 - ✅ Supports both specific dates (`YYYY-MM-DD`) and ISO week format (`YYYY-Wnn`)  
 - ✅ Automatically resolves week-based entries to **Tuesdays**  
-- ✅ Separates **Restavfall** and **Matavfall** into different calendars  
+- ✅ Separates **Restavfall** and **Matavfall** into different calendars and also a combined **all** calendar.
 - ✅ Designed for hosting on GitHub Pages  
 
 ---
 
 ## 📁 File Structure
 ```
-. ├── generate.js # Script to generate .ics files 
-  ├── calendars/  # Output folder with generated .ics files 
-  │ 
-  ├── matavfall.ics 
-  │ 
-  └── restavfall.ics 
+. ├── generate.js         # Script to generate .ics files
+  ├── waste-schedule.json # json file which includes the pickup schedules
+  ├── calendars/  # Output folder with generated .ics files
+  ├──── all.ics   # Calendar that includes both matavfall and restavfall
+  ├──── matavfall.ics 
+  ├──── restavfall.ics
+  │
   ├── package.json 
   └── README.md
 ```
@@ -44,7 +45,7 @@ npm install
 
 ## 🚀 Usage
 ```bash
-node generate.js
+node generate
 ```
 The .ics files will be written to the calendars/ folder.
 
