@@ -10,7 +10,7 @@ You can use the generated `.ics` files to **subscribe in your calendar app** (Go
 
 - ✅ All-day events  
 - ✅ Supports both specific dates (`YYYY-MM-DD`) and ISO week format (`YYYY-Wnn`)  
-- ✅ Automatically resolves week-based entries to **Tuesdays** unless a explicit date is scheduled
+- ✅ Automatically resolves week-based entries to **Tuesdays** unless an explicit pickup date is scheduled
 - ✅ Separates **Restavfall** and **Matavfall** into different calendars and also a combined **all** calendar.
 
 ---
