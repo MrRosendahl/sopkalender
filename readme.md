@@ -17,7 +17,7 @@ You can use the generated `.ics` files to **subscribe in your calendar app** (Go
 ---
 
 ## 📁 File Structure
-
+```
 . ├── generate.js # Script to generate .ics files 
   ├── calendars/  # Output folder with generated .ics files 
   │ 
@@ -26,7 +26,7 @@ You can use the generated `.ics` files to **subscribe in your calendar app** (Go
   └── restavfall.ics 
   ├── package.json 
   └── README.md
-
+```
 
 ---
 
