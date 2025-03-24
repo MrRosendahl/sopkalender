@@ -1,14 +1,3 @@
-// const fs = require('fs');
-// const path = require('path');
-// const { createEvents } = require('ics');
-// const { parseISO, startOfISOWeek, addDays } = require('date-fns');
-
-// // 🗂️ Waste types enum
-// const WasteType = {
-//   RESTAVFALL: { key: 'restavfall', title: 'Restavfall' },
-//   MATAVFALL: { key: 'matavfall', title: 'Matavfall' }
-// };
-
 const fs = require('fs');
 const path = require('path');
 const { createEvents } = require('ics');
