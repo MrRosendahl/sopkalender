@@ -58,8 +58,14 @@ function generateCalendar(filename, eventList) {
 // 📅 Convert type + dates to ICS-friendly events
 function createEventsForType(typeKey, dates) {
   const type = WasteType[typeKey];
+
+  const typeIcons = {
+    matavfall: '🟫',
+    restavfall: '🟩'
+  };
+
   return dates.map(dateStr => ({
-    title: type.title,
+    title: `${typeIcons[typeKey]} ${type.title}`,
     start: parseDate(dateStr),
     duration: { days: 1 },
     status: 'CONFIRMED'
