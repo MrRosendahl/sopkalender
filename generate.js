@@ -12,13 +12,13 @@ if (!fs.existsSync(calendarPath)) {
 
 // Get correct [YYYY, MM, DD] from ISO week and pickupDayDiff
 function getDateFromWeek(year, weekNumber, baseDay, pickupDayDiff = 0) {
-  // baseDay: 1 = Monday, 2 = Tuesday, ...
+  // This returns January 4th, which is guaranteed to be in ISO week 1.
   const baseDate = setISODay(setISOWeek(new Date(year, 0, 4), weekNumber), baseDay);
   const pickupDate = addDays(baseDate, pickupDayDiff);
   return [pickupDate.getFullYear(), pickupDate.getMonth() + 1, pickupDate.getDate()];
 }
 
-// Maps weekday name to ISO weekday number (Mon=0, Sun=6)
+// Maps weekday name to ISO weekday number (Mon=1, Sun=7)
 const weekdayMap = {
   monday: 1,
   tuesday: 2,
