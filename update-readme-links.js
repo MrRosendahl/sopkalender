@@ -3,11 +3,9 @@ const path = require('path');
 
 const calendarsDir = path.join(__dirname, 'calendars');
 const readmePath = path.join(__dirname, 'README.md');
-
-// GitHub raw base URL
 const githubBaseUrl = 'https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars';
 
-// Find all .ics files recursively
+// Recursively find all .ics files
 function findIcsFiles(dir) {
   let files = [];
   fs.readdirSync(dir, { withFileTypes: true }).forEach(entry => {
@@ -21,20 +19,43 @@ function findIcsFiles(dir) {
   return files;
 }
 
-// Convert to markdown link
-function formatMarkdownLink(filePath) {
-  const relPath = path.relative(calendarsDir, filePath).replace(/\\/g, '/');
-  const url = `${githubBaseUrl}/${relPath}`;
-  return `- 🗓️ [${path.basename(filePath)}](${url})`;
+// Group links by area number
+function groupByArea(icsFiles) {
+  const grouped = {};
+
+  icsFiles.forEach(filePath => {
+    const relPath = path.relative(calendarsDir, filePath).replace(/\\/g, '/');
+    const url = `${githubBaseUrl}/${relPath}`;
+    const fileName = path.basename(filePath);
+    
+    const match = fileName.match(/^area_(\d+)_/);
+    if (!match) return;
+
+    const area = match[1];
+    if (!grouped[area]) grouped[area] = [];
+
+    grouped[area].push(`- 🗓️ [${fileName}](${url})`);
+  });
+
+  return grouped;
 }
 
-// Update README.md
-function updateReadme(links) {
-  const readme = fs.readFileSync(readmePath, 'utf8');
+// Format grouped links into <details> blocks
+function formatGroupedMarkdown(grouped) {
+  return Object.entries(grouped)
+    .sort(([a], [b]) => Number(a) - Number(b)) // sort by area number
+    .map(([area, links]) => {
+      return `<details>\n<summary>Area ${area}</summary>\n\n${links.join('\n')}\n\n</details>`;
+    })
+    .join('\n\n');
+}
 
+// Update README.md between start/end markers
+function updateReadme(newBlock) {
   const startMarker = '<!-- auto-generated-calendar-links:start -->';
   const endMarker = '<!-- auto-generated-calendar-links:end -->';
 
+  const readme = fs.readFileSync(readmePath, 'utf8');
   const startIndex = readme.indexOf(startMarker);
   const endIndex = readme.indexOf(endMarker);
 
@@ -46,14 +67,13 @@ function updateReadme(links) {
   const before = readme.slice(0, startIndex + startMarker.length);
   const after = readme.slice(endIndex);
 
-  const newContent = `\n\n${links.join('\n')}\n\n`;
-  const updated = before + newContent + after;
-
+  const updated = `${before}\n\n${newBlock}\n\n${after}`;
   fs.writeFileSync(readmePath, updated, 'utf8');
-  console.log('✅ README.md updated with calendar links');
+  console.log('✅ README.md updated with grouped calendar links');
 }
 
-// Run
-const icsFiles = findIcsFiles(calendarsDir);
-const markdownLinks = icsFiles.map(formatMarkdownLink);
-updateReadme(markdownLinks);
+// Run the generator
+const files = findIcsFiles(calendarsDir);
+const grouped = groupByArea(files);
+const markdown = formatGroupedMarkdown(grouped);
+updateReadme(markdown);
