@@ -54,14 +54,13 @@ function createEventsForStreet(year, weeks, typeMap, pickupDayName) {
 }
 
 // Write .ics file to disk
-function generateCalendar(filename, events) {
+function generateCalendar(filePath, events) {
   const { error, value } = createEvents(events);
   if (error) {
-    console.error(`❌ Error generating ${filename}:`, error);
+    console.error(`❌ Error generating ${filePath}:`, error);
     return;
   }
 
-  const filePath = path.join(calendarPath, filename);
   fs.writeFileSync(filePath, value);
   console.log(`✅ Wrote: ${filePath}`);
 }
@@ -95,8 +94,15 @@ fs.readdirSync(areasFolder)
       const events = createEventsForStreet(year, week, typeMap, pickupDay);
 
       const safeStreet = slugifyStreet(street);
-      const fileName = `area_${area}_${safeStreet}_${year}.ics`;
+      const fileName = `area_${area}_${safeStreet}.ics`;
 
-      generateCalendar(fileName, events);
+      // Output folder per area
+      const areaFolder = path.join(calendarPath, `area_${area}`);
+      if (!fs.existsSync(areaFolder)) {
+        fs.mkdirSync(areaFolder);
+      }
+
+      const filePath = path.join(areaFolder, fileName);
+      generateCalendar(filePath, events);
     });
   });
