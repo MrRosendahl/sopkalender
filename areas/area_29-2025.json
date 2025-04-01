@@ -1,0 +1,189 @@
+{
+	"area": 29,
+	"streetPickup": [
+		{
+			"street": "Bergelésgatan",
+			"pickupDay": "Tuesday"			
+		},
+		{
+			"street": "Innövervägen",
+			"pickupDay": "Tuesday"			
+		},
+		{
+			"street": "Tallhedsgatan",
+			"pickupDay": "Tuesday"			
+		},
+		{
+			"street": "Porsnäsvägen",
+			"pickupDay": "Tuesday"			
+		}
+	],
+	"types": [
+		{
+			"type": "R",
+			"description": "Restavfall",
+			"icon": "🟩"
+		},
+		{
+			"type": "M",
+			"description": "Matavfall",
+			"icon": "🟫"
+		}
+	],
+	"year": 2025,
+	"week": [
+	  {
+		"weekNumber": 2,
+		"type": "M",
+		"pickupDayDiff": 0,
+		"description": "Låt sopkärlet stå tills det blir tömt."
+	  },
+	  {
+		"weekNumber": 3,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 6,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 7,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 10,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 11,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 12,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 14,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 15,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 16,
+		"type": "M",
+		"pickupDayDiff": -1,
+		"description": "Påskveckan: Låt sopkärlet stå tills det blir tömt."
+	  },
+	  {
+		"weekNumber": 18,
+		"type": "M",
+		"pickupDayDiff": -1,
+		"description": "Första maj: Låt sopkärlet stå tills det blir tömt."
+	  },
+	  {
+		"weekNumber": 19,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 20,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 22,
+		"type": "M",
+		"pickupDayDiff": -1,
+		"description": "Kristi himmelfärds dag: Låt sopkärlet stå tills det blir tömt."
+	  },
+	  {
+		"weekNumber": 23,
+		"type": "R",
+		"pickupDayDiff": -1,
+		"description": "Nationaldagen: Låt sopkärlet stå tills det blir tömt."
+	  },
+	  {
+		"weekNumber": 24,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 26,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 27,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 28,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 30,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 31,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 32,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 34,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 35,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 36,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 38,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 39,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 40,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 42,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 43,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 46,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 47,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 50,
+		"type": "M"
+	  },
+	  {
+		"weekNumber": 51,
+		"type": "R"
+	  },
+	  {
+		"weekNumber": 52,
+		"type": "M",
+		"pickupDayDiff": -1,
+		"description": "Julveckan: Låt sopkärlet stå tills det blir tömt."
+	  }
+	]
+  }
+  

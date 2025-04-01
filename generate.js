@@ -1,39 +1,61 @@
 const fs = require('fs');
 const path = require('path');
 const { createEvents } = require('ics');
-const { parseISO, startOfISOWeek, addDays } = require('date-fns');
+const { setISOWeek, setISODay, addDays } = require('date-fns');
 
-// Waste types enum
-const WasteType = {
-  matavfall: { key: 'matavfall', title: 'Matavfall' },
-  restavfall: { key: 'restavfall', title: 'Restavfall' }
-};
-
-// Output path for calendar files
+const areasFolder = path.join(__dirname, 'areas');
 const calendarPath = path.join(__dirname, 'calendars');
+
 if (!fs.existsSync(calendarPath)) {
   fs.mkdirSync(calendarPath);
 }
 
-// Load schedule from JSON
-const schedule = require('./waste-schedule.json');
-
-// Converts "YYYY-Wxx" or "YYYY-MM-DD" to [YYYY, M, D]
-function parseDate(input) {
-  let date;
-  if (input.includes('W')) {
-    const monday = parseISO(input);
-    date = addDays(startOfISOWeek(monday), 1); // Tuesday
-  } else {
-    date = parseISO(input);
-  }
-  return [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+// Get correct [YYYY, MM, DD] from ISO week and pickupDayDiff
+function getDateFromWeek(year, weekNumber, baseDay, pickupDayDiff = 0) {
+  // baseDay: 1 = Monday, 2 = Tuesday, ...
+  const baseDate = setISODay(setISOWeek(new Date(year, 0, 4), weekNumber), baseDay);
+  const pickupDate = addDays(baseDate, pickupDayDiff);
+  return [pickupDate.getFullYear(), pickupDate.getMonth() + 1, pickupDate.getDate()];
 }
 
-// Generate a calendar file from a list of event objects
-function generateCalendar(filename, eventList) {
-  const { error, value } = createEvents(eventList);
+// Maps weekday name to ISO weekday number (Mon=0, Sun=6)
+const weekdayMap = {
+  monday: 1,
+  tuesday: 2,
+  wednesday: 3,
+  thursday: 4,
+  friday: 5,
+  saturday: 6,
+  sunday: 7
+};
 
+// Create ICS events based on weekly schedule and pickup day
+function createEventsForStreet(year, weeks, typeMap, pickupDayName) {
+  const baseDay = weekdayMap[pickupDayName.toLowerCase()];
+  if (baseDay === undefined) {
+    console.warn(`⚠ Unknown pickup day "${pickupDayName}" — skipping`);
+    return [];
+  }
+
+  return weeks
+    .map(week => {
+      const typeMeta = typeMap[week.type];
+      if (!typeMeta) return null;
+
+      return {
+        title: `${typeMeta.icon} ${typeMeta.description}`,
+        description: week.description || '',
+        start: getDateFromWeek(year, week.weekNumber, baseDay, week.pickupDayDiff || 0),
+        duration: { days: 1 },
+        status: 'CONFIRMED'
+      };
+    })
+    .filter(Boolean);
+}
+
+// Write .ics file to disk
+function generateCalendar(filename, events) {
+  const { error, value } = createEvents(events);
   if (error) {
     console.error(`❌ Error generating ${filename}:`, error);
     return;
@@ -44,40 +66,37 @@ function generateCalendar(filename, eventList) {
   console.log(`✅ Wrote: ${filePath}`);
 }
 
-// Convert type + dates to ICS-friendly events
-function createEventsForType(typeKey, typeKey) {
-  const type = WasteType[typeKey];
-
-  const typeIcons = {
-    matavfall: '🟫',
-    restavfall: '🟩'
-  };
-
-  return schedule
-    .filter(e => e.type === typeKey)
-    .map(e => ({
-      title: `${typeIcons[typeKey]} ${type.title}`,
-      description: e.description || '', // Add the custom description
-      start: parseDate(e.date),
-      duration: { days: 1 },
-      status: 'CONFIRMED'
-    }));
+// Slugify street name to file-friendly string
+function slugifyStreet(name) {
+  return name
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove accents
+    .replace(/\s+/g, '-') // spaces to dashes
+    .replace(/[^a-zA-Z0-9-_]/g, '') // remove anything weird
+    .toLowerCase();
 }
 
-// Generate individual calendars
-const matavfallEvents = createEventsForType(schedule, 'matavfall');
-const restavfallEvents = createEventsForType(schedule, 'restavfall');
+// Main loop
+fs.readdirSync(areasFolder)
+  .filter(file => file.startsWith('area_') && file.endsWith('.json'))
+  .forEach(file => {
+    const fullPath = path.join(areasFolder, file);
+    const data = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
 
-generateCalendar('matavfall.ics', matavfallEvents);
-generateCalendar('restavfall.ics', restavfallEvents);
+    const { area, year, week, types, streetPickup } = data;
 
-// Combine all events into one calendar (and sort by date)
-const allEvents = [...matavfallEvents, ...restavfallEvents].sort((a, b) => {
-  const aDate = new Date(a.start[0], a.start[1] - 1, a.start[2]);
-  const bDate = new Date(b.start[0], b.start[1] - 1, b.start[2]);
-  return aDate - bDate;
-});
+    // Create map: { "M": { icon, description }, ... }
+    const typeMap = types.reduce((acc, t) => {
+      acc[t.type] = { icon: t.icon, description: t.description };
+      return acc;
+    }, {});
 
-console.log(allEvents.map(e => `${e.title}: ${e.start.join('-')}`));
+    // Generate one calendar per street
+    streetPickup.forEach(({ street, pickupDay }) => {
+      const events = createEventsForStreet(year, week, typeMap, pickupDay);
 
-generateCalendar('all.ics', allEvents);
+      const safeStreet = slugifyStreet(street);
+      const fileName = `area_${area}_${safeStreet}_${year}.ics`;
+
+      generateCalendar(fileName, events);
+    });
+  });
