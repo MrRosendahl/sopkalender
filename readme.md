@@ -2,7 +2,7 @@
 
 This project generates `.ics` calendar files for home waste pickup.
 
-You can use the generated `.ics` files to **subscribe in your calendar app** (Google Calendar, Outlook, Apple Calendar, etc) and get reminders for pickup days.
+You can use the generated `.ics` files to **subscribe in your calendar app** (Google Calendar, Outlook, Apple Calendar, etc) and set your own reminders for pickup days.
 
 ---
 
@@ -14,11 +14,12 @@ You can use the generated `.ics` files to **subscribe in your calendar app** (Go
 
 ## 📁 File Structure
 ```
-. ├── generate.js         # Script to generate .ics files
+. ├── generate.js    # Script to generate .ics files
   ├── areas/
-  ├──── area_29-2025.json # json file which includes the pickup schedules for an area and its streets
-  ├── calendars/  # Output folder with generated .ics files
-  ├──── area_29_<streetname>.ics
+  ├──── area_29.json # json file which includes the pickup schedules for its streets
+  ├── calendars/     # Output folder with generated .ics files
+  ├────/area_29
+  ├────── area_29_<streetname>.ics
   │
   ├── package.json
   └── README.md
