@@ -63,12 +63,19 @@ You can subscribe directly via GitHub Raw URLs.
 When clicking on the calendar link it will open in a new browser tab.  
 Copy the url and [import that to your calendar app](#-importing-to-calendar-apps).
 
-<details>
-<summary>Click to show a list of available calendar subscriptions</summary>
-
 <!-- auto-generated-calendar-links:start -->
-<!-- auto-generated-calendar-links:end -->
+
+<details>
+<summary>Area 29</summary>
+
+- 🗓️ [area_29_bergelesgatan.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/area_29_bergelesgatan.ics)
+- 🗓️ [area_29_innovervagen.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/area_29_innovervagen.ics)
+- 🗓️ [area_29_porsnasvagen.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/area_29_porsnasvagen.ics)
+- 🗓️ [area_29_tallhedsgatan.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/area_29_tallhedsgatan.ics)
+
 </details>
+
+<!-- auto-generated-calendar-links:end -->
 
 ## 📥 Importing to Calendar Apps
 
