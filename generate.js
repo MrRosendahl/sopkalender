@@ -30,8 +30,9 @@ const weekdayMap = {
 };
 
 // Create ICS events based on weekly schedule and pickup day
-function createEventsForStreet(year, weeks, typeMap, pickupDayName) {
-  const baseDay = weekdayMap[pickupDayName.toLowerCase()];
+function createEventsForStreet(area, street, year, weeks, typeMap, pickupDayName) {
+  const baseDay = weekdayMap[pickupDayName.toLowerCase()];  
+
   if (baseDay === undefined) {
     console.warn(`⚠ Unknown pickup day "${pickupDayName}" — skipping`);
     return [];
@@ -40,12 +41,16 @@ function createEventsForStreet(year, weeks, typeMap, pickupDayName) {
   return weeks
     .map(week => {
       const typeMeta = typeMap[week.type];
+      const uid = `area${area}_${slugifyStreet(street)}_${year}_week${week.weekNumber}_${week.type}`;
+      const start = getDateFromWeek(year, week.weekNumber, baseDay, week.pickupDayDiff || 0);
+
       if (!typeMeta) return null;
 
       return {
+        uid: uid,
         title: `${typeMeta.icon} ${typeMeta.description}`,
         description: week.description || '',
-        start: getDateFromWeek(year, week.weekNumber, baseDay, week.pickupDayDiff || 0),
+        start: start,
         duration: { days: 1 },
         status: 'CONFIRMED'
       };
@@ -53,15 +58,32 @@ function createEventsForStreet(year, weeks, typeMap, pickupDayName) {
     .filter(Boolean);
 }
 
+// Helper function to create a zero-padded string
+// (e.g., 1 -> "01", 10 -> "10")
+const pad = (n) => n.toString().padStart(2, '0');
+
 // Write .ics file to disk
-function generateCalendar(filePath, events) {
+function generateCalendar(filePath, events, calendarName) {
   const { error, value } = createEvents(events);
   if (error) {
     console.error(`❌ Error generating ${filePath}:`, error);
     return;
   }
 
-  fs.writeFileSync(filePath, value);
+  // Inject X-WR-CALNAME just after CALSCALE
+  let output = value.replace(
+    'CALSCALE:GREGORIAN',
+    `CALSCALE:GREGORIAN\nX-WR-CALNAME:${calendarName}`
+  );  
+
+  // Optional: Replace all DTSTAMPs with something consistent (like event start)
+  events.forEach(event => {
+    const dt = event.start; // [YYYY, M, D]
+    const stamp = `DTSTAMP:${dt[0]}${pad(dt[1])}${pad(dt[2])}T000000Z`;
+    output = output.replace(/DTSTAMP:[^\n]*/i, stamp); // replaces first or all if looped
+  });
+
+  fs.writeFileSync(filePath, output, 'utf8');
   console.log(`✅ Wrote: ${filePath}`);
 }
 
@@ -81,7 +103,7 @@ fs.readdirSync(areasFolder)
     const fullPath = path.join(areasFolder, file);
     const data = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
 
-    const { area, year, week, types, streetPickup } = data;
+    const { area, year, week, types, streetPickup, calendarTitle } = data;
 
     // Create map: { "M": { icon, description }, ... }
     const typeMap = types.reduce((acc, t) => {
@@ -91,7 +113,7 @@ fs.readdirSync(areasFolder)
 
     // Generate one calendar per street
     streetPickup.forEach(({ street, pickupDay }) => {
-      const events = createEventsForStreet(year, week, typeMap, pickupDay);
+      const events = createEventsForStreet(area, street, year, week, typeMap, pickupDay);
 
       const safeStreet = slugifyStreet(street);
       const fileName = `area_${area}_${safeStreet}.ics`;
@@ -103,6 +125,7 @@ fs.readdirSync(areasFolder)
       }
 
       const filePath = path.join(areaFolder, fileName);
-      generateCalendar(filePath, events);
+      const fullTitle = `${calendarTitle} – ${street}`;
+      generateCalendar(filePath, events, fullTitle);
     });
   });
