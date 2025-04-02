@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { createEvents } = require('ics');
 const { setISOWeek, setISODay, addDays } = require('date-fns');
+const { execSync } = require('child_process');
 
 const areasFolder = path.join(__dirname, 'areas');
 const calendarPath = path.join(__dirname, 'calendars');
@@ -129,3 +130,11 @@ fs.readdirSync(areasFolder)
       generateCalendar(filePath, events, fullTitle);
     });
   });
+
+// Run update-readme-links.js after all files are processed
+try {
+  execSync('node update-readme-links.js', { stdio: 'inherit' });
+  console.log('✅ Successfully executed update-readme-links.js');
+} catch (err) {
+  console.error('❌ Error executing update-readme-links.js:', err.message);
+}
