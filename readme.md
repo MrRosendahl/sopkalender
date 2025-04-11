@@ -19,7 +19,9 @@ Generate `.ics` calendar files with household waste pickup schedules — easily 
 ## 📁 File Structure
 
 ```
-├── generate.js          # Script to generate .ics files
+├── generate.js            # Script to generate .ics files
+├── area_file_processor.js # 
+├── calendar_generator.js  # 
 ├── areas/
 │   ├── area_29.json     # JSON file defining pickup schedule, types, and streets
 ├── calendars/           # Output folder for generated .ics files
