@@ -6,7 +6,10 @@
   "scripts": {
     "generate": "node generate.js"
   },
-  "author": "",
+  "author": {
+    "name": "Michael Rosendahl",
+    "url": "https://github.com/MrRosendahl"
+  }, 
   "license": "MIT",
   "dependencies": {
     "date-fns": "^4.1.0",
