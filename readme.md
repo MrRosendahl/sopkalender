@@ -10,7 +10,6 @@ Generate `.ics` calendar files with household waste pickup schedules — easily 
 - 🏘 Supports **multiple streets per area** with individual pickup days
 - 📆 Uses **ISO week numbers** with proper weekday offset support
 - 🕒 Adds **custom pickup notes** (e.g. "Låt sopkärlet stå tills det blir tömt.")
-- 🔁 Uses **stable event UIDs** for smooth calendar syncing
 - 🧾 Custom calendar names using `X-WR-CALNAME` (shown in some apps)
 - 🔧 Easily extendable by editing JSON files — no code changes needed
 
@@ -19,17 +18,19 @@ Generate `.ics` calendar files with household waste pickup schedules — easily 
 ## 📁 File Structure
 
 ```
-├── generate.js            # Script to generate .ics files
-├── area_file_processor.js # 
-├── calendar_generator.js  # 
+├── generate.js            # Main script to generate .ics files
+├── area_file_processor.js # Processes area JSON files and prepares data for calendar generation
+├── calendar_generator.js  # Handles the creation of ICS files and stable DTSTAMP generation
+├── utils.js               # Utility functions for file handling, date formatting, and more
 ├── areas/
-│   ├── area_29.json     # JSON file defining pickup schedule, types, and streets
-├── calendars/           # Output folder for generated .ics files
+│   ├── area_29.json       # JSON file defining pickup schedule, types, and streets
+├── calendars/             # Output folder for generated .ics files
 │   ├── area_29/
 │   │   ├── area_29_bergelesgatan.ics
 │   │   └── ...
-├── package.json
-└── README.md
+├── package.json           # Project dependencies and metadata
+├── package-lock.json      # Dependency lock file
+└── README.md              # Project documentation
 ```
 
 ---
@@ -56,6 +57,56 @@ node generate
 ```
 
 All `.ics` files will be written to the `calendars/` folder, organized per area.
+
+---
+
+## 📜 Comments on Key Files
+
+### `generate.js`
+
+This is the main entry point for generating `.ics` files. It orchestrates the following steps:
+
+1. Ensures the output folder (`calendars/`) exists.
+2. Reads all JSON files in the `areas/` folder.
+3. Processes each area file using `area_file_processor.js`.
+4. Generates `.ics` files for each street in the area using `calendar_generator.js`.
+5. Runs `update-readme-links.js` to update the README with links to the generated calendars.
+
+Run this script with:
+
+```bash
+node generate
+```
+
+---
+
+### `area_file_processor.js`
+
+This module processes the JSON files in the `areas/` folder. It performs the following tasks:
+
+1. Reads and validates the structure of the JSON files.
+2. Extracts relevant data such as area, streets, pickup days, and event types.
+3. Prepares the data for use by `calendar_generator.js`.
+
+This module ensures that the input data is clean and ready for calendar generation.
+
+---
+
+### `calendar_generator.js`
+
+This module handles the creation of `.ics` files. It includes:
+
+1. **Event Generation**:
+   - Converts the processed data into ICS-compatible events.
+   - Sets `DTSTAMP` to the current runtime.
+
+2. **File Writing**:
+   - Writes the generated `.ics` files to the appropriate folder.
+
+3. **Custom Calendar Names**:
+   - Adds `X-WR-CALNAME` to the ICS file for better display in calendar apps.
+
+This module ensures that the `.ics` files are correctly formatted and ready for use.
 
 ---
 
