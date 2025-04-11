@@ -16,9 +16,11 @@ try {
     .readdirSync(areasFolder) // Read all files in the areas folder
     .filter((file) => file.startsWith('area_') && file.endsWith('.json')); // Filter for area JSON files
 
+  currentDate = new Date(); // Get the current date
+
   // Generate street calendars for each area file
   areaFiles.forEach((file) => {
-    generateCalendarsForAreaFile(String(file), areasFolder, calendarPath);
+    generateCalendarsForAreaFile(String(file), areasFolder, calendarPath, currentDate);
   });
 
   // Run update-readme-links.js after all files are processed

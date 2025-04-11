@@ -32,7 +32,7 @@ function getStreetFilePath(area, street, calendarPath) {
 /// <param name="file">The name of the area file to process.</param>
 /// <param name="areasFolder">The folder containing area files.</param>
 /// <param name="calendarPath">The path to the calendar folder.</param>
-function generateCalendarsForAreaFile(file, areasFolder, calendarPath) {
+function generateCalendarsForAreaFile(file, areasFolder, calendarPath, currentDate) {
   const fullPath = path.join(areasFolder, String(file)); // Ensure file is a string
   let data;
 
@@ -56,7 +56,7 @@ function generateCalendarsForAreaFile(file, areasFolder, calendarPath) {
     const events = createEventsForStreet(area, street, year, week, typeMap, pickupDay);
     const filePath = getStreetFilePath(area, street, calendarPath);
     const fullTitle = `${calendarTitle} – ${street}`;
-    generateCalendar(filePath, events, fullTitle);
+    generateCalendar(filePath, events, fullTitle, currentDate);
   });
 }
 

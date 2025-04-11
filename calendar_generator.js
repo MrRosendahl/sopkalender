@@ -1,5 +1,6 @@
 const { createEvents } = require('ics'); // Import library to create ICS files
 const { getDateFromWeek, toFileSafeName, writeFileSync, formatToTwoDigits } = require('./utils'); // Import utility functions
+const crypto = require('crypto'); // Import crypto module for hashing
 
 // Maps weekday names to ISO weekday numbers (Monday = 1, Sunday = 7)
 const weekdayMap = {
@@ -57,13 +58,43 @@ function createEventsForStreet(area, street, year, weeks, typeMap, pickupDayName
     });
   }
 
+/**
+ * Generates a deterministic DTSTAMP string based on the entire event content.
+ * Ensures DTSTAMP only changes if the event data changes.
+ * @param {Array} events - Array of event objects.
+ * @returns {string} - Valid iCal UTC datetime string.
+ */
+function generateStableDTSTAMP(events) {
+  const crypto = require('crypto');
+
+  const content = JSON.stringify(events);
+  const hash = crypto.createHash('md5').update(content).digest();
+  
+  // Get a signed integer between -7200 and +7200 seconds (±2 hours)
+  const offsetInSeconds = (hash.readInt16BE(0) % 7200);
+
+  const now = new Date();
+  now.setUTCSeconds(now.getUTCSeconds() + offsetInSeconds);
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const year = now.getUTCFullYear();
+  const month = pad(now.getUTCMonth() + 1);
+  const day = pad(now.getUTCDate());
+  const hour = pad(now.getUTCHours());
+  const minute = pad(now.getUTCMinutes());
+  const second = pad(now.getUTCSeconds());
+
+  return `${year}${month}${day}T${hour}${minute}${second}Z`;
+}
+
 /// <summary>
 /// Writes an ICS file to disk based on the provided events and calendar name.
 /// </summary>
 /// <param name="filePath">The file path to write the ICS file to.</param>
 /// <param name="events">An array of ICS event objects.</param>
 /// <param name="calendarName">The name of the calendar.</param>
-function generateCalendar(filePath, events, calendarName) {
+/// <param name="currentDate">The current Date.</param>
+function generateCalendar(filePath, events, calendarName, currentDate) {
   const { error, value } = createEvents(events); // Generate ICS content
   if (error) {
     console.error(`❌ Error generating calendar "${calendarName}" at ${filePath}:`, error.message);
@@ -76,12 +107,17 @@ function generateCalendar(filePath, events, calendarName) {
     `CALSCALE:GREGORIAN\nX-WR-CALNAME:${calendarName}`
   );
 
-  // Replace all DTSTAMPs with consistent values to avoid unnecessary changes
-  // This is done to ensure that the ICS file remains unchanged when re-generated unless the events change
-  // We use the first event's start date for consistency
+  // Replace all DTSTAMPs the current time
   output = output.replace(/DTSTAMP:[^\n]*/gi, () => {
-    const firstEventStart = events[0].start; // Use the first event's start date for consistency
-    return `DTSTAMP:${firstEventStart[0]}${formatToTwoDigits(firstEventStart[1])}${formatToTwoDigits(firstEventStart[2])}T000000Z`;
+    const pad = (n) => String(n).padStart(2, '0');
+    const year = currentDate.getUTCFullYear();
+    const month = pad(currentDate.getUTCMonth() + 1);
+    const day = pad(currentDate.getUTCDate());
+    const hour = pad(currentDate.getUTCHours());
+    const minute = pad(currentDate.getUTCMinutes());
+    const second = pad(currentDate.getUTCSeconds());
+  
+    return `DTSTAMP:${year}${month}${day}T${hour}${minute}${second}Z`;
   });
 
   // Write the ICS file to disk
