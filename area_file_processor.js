@@ -32,7 +32,7 @@ function getStreetFilePath(area, street, calendarPath) {
 /// <param name="file">The name of the area file to process.</param>
 /// <param name="areasFolder">The folder containing area files.</param>
 /// <param name="calendarPath">The path to the calendar folder.</param>
-function generateCalendarsForAreaFile(file, areasFolder, calendarPath, dtstamp) {
+function generateCalendarsForAreaFile(file, areasFolder, calendarPath, dtstamp, runDateUtc) {
   const fullPath = path.join(areasFolder, String(file)); // Ensure file is a string
   let data;
 
@@ -44,7 +44,7 @@ function generateCalendarsForAreaFile(file, areasFolder, calendarPath, dtstamp) 
     return;
   }
 
-  const { area, year, week, types, streetPickup, calendarTitle } = data;
+  const { area, year, week, types, streetPickup, calendarTitle, calendarDescription } = data;
   const typeMap = createTypeMap(types); // Create a map of types
 
   // Ensure the folder for the area exists
@@ -53,10 +53,10 @@ function generateCalendarsForAreaFile(file, areasFolder, calendarPath, dtstamp) 
 
   // Generate one calendar per street
   streetPickup.forEach(({ street, pickupDay }) => {
-    const events = createEventsForStreet(area, street, year, week, typeMap, pickupDay, dtstamp); // Create events for the street
+    const events = createEventsForStreet(area, street, year, week, typeMap, pickupDay, dtstamp, runDateUtc); // Create events for the street
     const filePath = getStreetFilePath(area, street, calendarPath);
     const fullTitle = `${calendarTitle} – ${street}`;
-    generateCalendar(filePath, events, fullTitle, dtstamp);
+    generateCalendar(filePath, events, fullTitle, calendarDescription);
   });
 }
 

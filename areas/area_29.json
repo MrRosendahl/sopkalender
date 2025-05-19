@@ -1,6 +1,7 @@
 {
 	"area": 29,
 	"calendarTitle": "Sopkalender",
+	"calendarDescription": "Sopkalendern visar när hämtning av matavfall respektive restavfall sker i ditt område.",
 	"streetPickup": [
 		{
 			"street": "Bergelésgatan",

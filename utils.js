@@ -70,6 +70,34 @@ function writeFileSync(filePath, data, encoding = 'utf8') {
   }
 }
 
+/// <summary>
+/// Calculates the end date based on a start date and duration.
+/// </summary>
+/// <param name="startDate">The start date in YYYYMMDD format.</param>
+/// <param name="duration">The duration in ISO 8601 format (e.g., "P1D").</param>
+/// <returns>A string representing the end date in YYYYMMDD format.</returns>
+function getEndDateForDate(startDate, duration) {
+  // Parse the start date
+  const year = parseInt(startDate.slice(0, 4), 10);
+  const month = parseInt(startDate.slice(4, 6), 10) - 1; // Months are 0-indexed in JavaScript
+  const day = parseInt(startDate.slice(6, 8), 10);
+
+  const start = new Date(year, month, day);
+
+  // Extract the number of days from the duration (e.g., "P1D" -> 1 day)
+  const daysToAdd = parseInt(duration.replace('P', '').replace('D', ''), 10);
+
+  // Calculate the end date
+  const endDate = addDays(start, daysToAdd);
+
+  // Format the end date as YYYYMMDD
+  const yearStr = endDate.getFullYear();
+  const monthStr = (endDate.getMonth() + 1).toString().padStart(2, '0');
+  const dayStr = endDate.getDate().toString().padStart(2, '0');
+
+  return `${yearStr}${monthStr}${dayStr}`;
+}
+
 
 module.exports = {
   getDateFromWeek,
@@ -77,5 +105,6 @@ module.exports = {
   toFileSafeName,
   readJsonFile,
   writeFileSync,
-  formatToTwoDigits
+  formatToTwoDigits,
+  getEndDateForDate
 };
