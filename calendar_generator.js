@@ -53,7 +53,8 @@ function createEventsForStreet(area, street, year, weeks, typeMap, pickupDayName
         description: week.description || '', // Optional description for the event
         start, // Start date of the event
         duration: { days: 1 }, // Duration of the event (1 day)
-        status: 'CONFIRMED', // Event status
+        status: 'CONFIRMED', // Event status,
+        busyStatus: 'FREE', // Event busy status
       };
     });
   }
