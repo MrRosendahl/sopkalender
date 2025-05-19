@@ -9,10 +9,9 @@
   "author": {
     "name": "Michael Rosendahl",
     "url": "https://github.com/MrRosendahl"
-  }, 
+  },
   "license": "MIT",
   "dependencies": {
-    "date-fns": "^4.1.0",
-    "ics": "^3.8.1"
+    "date-fns": "^4.1.0"
   }
 }

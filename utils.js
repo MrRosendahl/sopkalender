@@ -15,11 +15,17 @@ const formatToTwoDigits = (n) => n.toString().padStart(2, '0');
 /// <param name="weekNumber">The ISO week number.</param>
 /// <param name="baseDay">The ISO weekday number (1 = Monday, 7 = Sunday).</param>
 /// <param name="pickupDayDiff">The offset in days from the base day.</param>
-/// <returns>An array representing the date [YYYY, MM, DD].</returns>
+/// <returns>A string representing the date in YYYYMMDD format.</returns>
 function getDateFromWeek(year, weekNumber, baseDay, pickupDayDiff = 0) {
   const baseDate = setISODay(setISOWeek(new Date(year, 0, 4), weekNumber), baseDay);
   const pickupDate = addDays(baseDate, pickupDayDiff);
-  return [pickupDate.getFullYear(), pickupDate.getMonth() + 1, pickupDate.getDate()];
+
+  // Format the date as YYYYMMDD
+  const yearStr = pickupDate.getFullYear();
+  const monthStr = (pickupDate.getMonth() + 1).toString().padStart(2, '0');
+  const dayStr = pickupDate.getDate().toString().padStart(2, '0');
+
+  return `${yearStr}${monthStr}${dayStr}`;
 }
 
 /// <summary>

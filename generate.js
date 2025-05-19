@@ -8,6 +8,19 @@ const { generateCalendarsForAreaFile } = require('./area_file_processor'); // Im
 const areasFolder = path.resolve(__dirname, 'areas'); // Folder containing area JSON files
 const calendarPath = path.resolve(__dirname, 'calendars'); // Folder to store generated calendars
 
+function createDTSTAMP() {
+  const pad = (n) => String(n).padStart(2, '0');
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = pad(now.getUTCMonth() + 1);
+  const day = pad(now.getUTCDate());
+  const hour = pad(now.getUTCHours());
+  const minute = pad(now.getUTCMinutes());
+  const second = pad(now.getUTCSeconds());
+
+  return `${year}${month}${day}T${hour}${minute}${second}Z`;
+}
+
 // Main loop
 try {
   ensureFolderExists(calendarPath);
@@ -16,16 +29,16 @@ try {
     .readdirSync(areasFolder) // Read all files in the areas folder
     .filter((file) => file.startsWith('area_') && file.endsWith('.json')); // Filter for area JSON files
 
-  currentDate = new Date(); // Get the current date
+  const dtstamp = createDTSTAMP(); // Generate the current timestamp in UTC format
 
   // Generate street calendars for each area file
   areaFiles.forEach((file) => {
-    generateCalendarsForAreaFile(String(file), areasFolder, calendarPath, currentDate);
+    generateCalendarsForAreaFile(String(file), areasFolder, calendarPath, dtstamp);
   });
 
   // Run update-readme-links.js after all files are processed
   execSync('node update-readme-links.js', { stdio: 'inherit' });
   console.log('✅ Successfully executed update-readme-links.js');
 } catch (err) {
-  console.error('❌ Error during processing:', err.message);
+  console.error('❌ Error during processing:', err);
 }
