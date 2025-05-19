@@ -62,6 +62,7 @@ function createEventsForStreet(area, street, year, weeks, typeMap, pickupDayName
       `STATUS:CONFIRMED${lineEnding}` +
       `TRANSP:TRANSPARENT${lineEnding}` + // Add this line to mark the event as "available"
       `X-MICROSOFT-CDO-BUSYSTATUS:FREE${lineEnding}` +
+      `CLASS:PUBLIC${lineEnding}` +
       `DURATION:P1DT${lineEnding}` +
       `DESCRIPTION:${description}${lineEnding}` +
       `END:VEVENT${lineEnding}`;
