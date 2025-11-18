@@ -24,7 +24,7 @@ const descLineEnding = '\\n';
 /// <param name="typeMap">A map of types to metadata (icon, description).</param>
 /// <param name="pickupDayName">The name of the pickup day (e.g., "Monday").</param>
 /// <returns>An array of ICS event objects.</returns>
-function createEventsForStreet(area, street, year, weeks, typeMap, pickupDayName, dtstamp, runDateUtc) {
+function createEventsForStreet(area, street, year, weeks, typeMap, pickupDayName, dtstamp) {
     const baseDay = weekdayMap[pickupDayName.toLowerCase()]; // Get ISO weekday number
   
     if (baseDay === undefined) {
@@ -68,7 +68,7 @@ function createEventsForStreet(area, street, year, weeks, typeMap, pickupDayName
       `DURATION:P1DT${lineEnding}` +
       `DESCRIPTION:${description}${lineEnding}` +
       `END:VEVENT${lineEnding}` +
-      `LAST-MODIFIED:${runDateUtc}${lineEnding}`;
+      `LAST-MODIFIED:${dtstamp}${lineEnding}`;
       
       return event;
     });

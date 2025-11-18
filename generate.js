@@ -27,14 +27,13 @@ try {
 
   const areaFiles = fs
     .readdirSync(areasFolder) // Read all files in the areas folder
-    .filter((file) => file.startsWith('area_') && file.endsWith('.json')); // Filter for area JSON files
-
-  const runDateUtc = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15); // RFC 5545 compatible e.g., "20240530T080852"
+    .filter((file) => file.startsWith('area_') && file.endsWith('.jsonc')); // Filter for area JSON files
+  
   const dtstamp = createDTSTAMP(); // Generate the current timestamp in UTC format
 
   // Generate street calendars for each area file
   areaFiles.forEach((file) => {
-    generateCalendarsForAreaFile(String(file), areasFolder, calendarPath, dtstamp, runDateUtc);
+    generateCalendarsForAreaFile(String(file), areasFolder, calendarPath, dtstamp);
   });
 
   // Run update-readme-links.js after all files are processed

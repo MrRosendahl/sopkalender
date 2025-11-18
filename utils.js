@@ -51,6 +51,21 @@ function ensureFolderExists(folderPath) {
   }
 }
 
+function readJsoncFile(filePath) {
+  try {
+    const text = fs.readFileSync(filePath, 'utf8');
+    const withoutComments = text
+      .replace(/\/\/.*$/gm, '')           // line comments
+      .replace(/\/\*[\s\S]*?\*\//g, '');  // block comments
+
+    return JSON.parse(withoutComments);
+    // return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch (err) {
+    console.error(`❌ Error reading or parsing ${filePath}:`, err.message);
+    return null;
+  }
+}
+
 function readJsonFile(filePath) {
   try {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -104,6 +119,7 @@ module.exports = {
   ensureFolderExists,
   toFileSafeName,
   readJsonFile,
+  readJsoncFile,
   writeFileSync,
   formatToTwoDigits,
   getEndDateForDate
