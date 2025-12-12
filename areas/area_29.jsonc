@@ -22,7 +22,7 @@
   "types": [
     {
       "type": "R",
-      "description": "Restavfall",
+      "description": "Plast och Restavfall",
       "icon": "🟩"
     },
     {
@@ -34,183 +34,91 @@
   "years": [
     {
       "year": 2025,
-      "weeks": [
-        {
-          "weekNumber": 47,
-          "type": "R"
+      "typeFrequency": {
+        "M": {
+          "manual": [50]
         },
-        {
-          "weekNumber": 50,
-          "type": "M"
-        },
-        {
-          "weekNumber": 51,
-          "type": "R"
+        "R": {
+          "manual": [47,51]
         }
+      },
+      "weeks": [
+        // November
+        { "weekNumber": 47, "type": "R" },
+
+        // December
+        { "weekNumber": 50, "type": "M" },
+        { "weekNumber": 51, "type": "R" }
       ]
     },
     {
       "year": 2026,
-      "weeks": [
-        // jan
-        {
-          "weekNumber": 2,
-          "type": "M"
+      "typeFrequency": {
+        "M": {
+          "manual": [2,6,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,46,50]
         },
-        {
-          "weekNumber": 3,
-          "type": "R"
-        },
-        
-        // feb
-        {
-          "weekNumber": 6,
-          "type": "M"
-        },
-        {
-          "weekNumber": 7,
-          "type": "R"
-        },
-
-        // mar
-        {
-          "weekNumber": 10,
-          "type": "M"
-        },
-        {
-          "weekNumber": 11,
-          "type": "R"
-        },
-        {
-          "weekNumber": 12,
-          "type": "M"
-        },
-        {
-          "weekNumber": 14,
-          "type": "M"
-        },
-
-        // apr
-        {
-          "weekNumber": 15,
-          "type": "R"
-        },
-        {
-          "weekNumber": 16,
-          "type": "M"
-        },
-        {
-          "weekNumber": 18,
-          "type": "M"
-        },
-
-        // May
-        {
-          "weekNumber": 19,
-          "type": "R"
-        },
-        {
-          "weekNumber": 20,
-          "type": "M"
-        },
-        {
-          "weekNumber": 22,
-          "type": "M"
-        },
-
-        // Jun
-        {
-          "weekNumber": 23,
-          "type": "R"
-        },
-        {
-          "weekNumber": 24,
-          "type": "M"
-        },
-        {
-          "weekNumber": 26,
-          "type": "M"
-        },
-        {
-          "weekNumber": 27,
-          "type": "R"
-        },
-
-        // Jul
-        {
-          "weekNumber": 28,
-          "type": "M"
-        },
-        {
-          "weekNumber": 30,
-          "type": "M"
-        },
-        {
-          "weekNumber": 31,
-          "type": "R"
-        },
-
-        // Aug
-        {
-          "weekNumber": 32,
-          "type": "M"
-        },
-        {
-          "weekNumber": 34,
-          "type": "M"
-        },
-        {
-          "weekNumber": 35,
-          "type": "R"
-        },
-
-        // Sep
-        {
-          "weekNumber": 36,
-          "type": "M"
-        },
-        {
-          "weekNumber": 38,
-          "type": "M"
-        },
-        {
-          "weekNumber": 39,
-          "type": "R"
-        },
-        {
-          "weekNumber": 40,
-          "type": "M"
-        },
-
-        // Oct
-        {
-          "weekNumber": 42,
-          "type": "M"
-        },
-        {
-          "weekNumber": 43,
-          "type": "R"
-        },
-
-        // Nov
-        {
-          "weekNumber": 46,
-          "type": "M"
-        },
-        {
-          "weekNumber": 47,
-          "type": "R"
-        },
-
-        // Dec
-        {
-          "weekNumber": 50,
-          "type": "M"
-        },
-        {
-          "weekNumber": 51,
-          "type": "R"
+        "R": {
+          "manual": [3,7,11,15,19,23,27,31,35,39,43,47,51]
         }
+      },
+      "weeks": [
+        // Januari
+        { "weekNumber": 2, "type": "M" },
+        { "weekNumber": 3, "type": "R" },
+
+        // Februari
+        { "weekNumber": 6, "type": "M" },
+        { "weekNumber": 7, "type": "R" },
+
+        // Mars
+        { "weekNumber": 10, "type": "M" },
+        { "weekNumber": 11, "type": "R" },
+        { "weekNumber": 12, "type": "M" },
+        { "weekNumber": 14, "type": "M" },
+
+        // April
+        { "weekNumber": 15, "type": "R" },
+        { "weekNumber": 16, "type": "M" },
+        { "weekNumber": 18, "type": "M" },
+
+        // Maj
+        { "weekNumber": 19, "type": "R" },
+        { "weekNumber": 20, "type": "M" },
+        { "weekNumber": 22, "type": "M" },
+
+        // Juni
+        { "weekNumber": 23, "type": "R" },
+        { "weekNumber": 24, "type": "M" },
+        { "weekNumber": 26, "type": "M" },
+        { "weekNumber": 27, "type": "R" },
+
+        // Juli
+        { "weekNumber": 28, "type": "M" },
+        { "weekNumber": 30, "type": "M" },
+        { "weekNumber": 31, "type": "R" },
+
+        // Augusti
+        { "weekNumber": 32, "type": "M" },
+        { "weekNumber": 34, "type": "M" },
+        { "weekNumber": 35, "type": "R" },
+        { "weekNumber": 36, "type": "M" },
+
+        // September
+        { "weekNumber": 38, "type": "M" },
+        { "weekNumber": 39, "type": "R" },
+        { "weekNumber": 40, "type": "M" },
+
+        // Oktober
+        { "weekNumber": 42, "type": "M" },
+        { "weekNumber": 43, "type": "R" },
+
+        // November
+        { "weekNumber": 46, "type": "M" },
+        { "weekNumber": 47, "type": "R" },
+
+        // December
+        { "weekNumber": 50, "type": "M" },
+        { "weekNumber": 51, "type": "R" }
       ]
     }
   ]
