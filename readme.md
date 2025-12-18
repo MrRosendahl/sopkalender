@@ -1,44 +1,43 @@
-# 🗑️ Sopkalender (iCal Generator for Waste Pickup)
+# Sopkalender (iCal Generator for Waste Pickup)
 
-Generate `.ics` calendar files with household waste pickup schedules — easily importable into calendar apps like **Google Calendar**, **Apple Calendar**, or **Outlook**.
-
----
-
-## 📦 Features
-
-- 📅 Generates **.ics files per street** and per area
-- 🏘 Supports **multiple streets per area** with individual pickup days
-- 📆 Uses **ISO week numbers** with proper weekday offset support
-- 🕒 Adds **custom pickup notes** (e.g. "Låt sopkärlet stå tills det blir tömt.")
-- 🧾 Custom calendar names using `X-WR-CALNAME` (shown in some apps)
-- 🔧 Easily extendable by editing JSON files — no code changes needed
+Generate `.ics` calendar files for household waste pickup schedules. Import into Google Calendar, Apple Calendar, or Outlook.
 
 ---
 
-## 📁 File Structure
+## Features
+
+- Generates `.ics` files per street and area
+- Supports multiple streets per area with individual pickup days
+- Uses ISO week numbers with weekday offsets
+- Supports custom pickup notes
+- Custom calendar names via `X-WR-CALNAME`
+- No code changes needed when adding or editing areas
+
+---
+
+## File Structure
 
 ```
 ├── generate.js            # Main script to generate .ics files
-├── area_file_processor.js # Processes area JSON files and prepares data for calendar generation
-├── calendar_generator.js  # Handles the creation of ICS files and stable DTSTAMP generation
-├── utils.js               # Utility functions for file handling, date formatting, and more
-├── areas/
-│   ├── area_29.json       # JSON file defining pickup schedule, types, and streets
-├── calendars/             # Output folder for generated .ics files
-│   ├── area_29/
-│   │   ├── area_29_bergelesgatan.ics
-│   │   └── ...
-├── package.json           # Project dependencies and metadata
-├── package-lock.json      # Dependency lock file
-└── README.md              # Project documentation
+├── area_processor.js      # Processes area configs and prepares data for calendar generation
+├── calendar_generator.js  # Creates ICS files and events
+├── utils.js               # File/date helpers
+├── areas/                 # Source area configs (JSONC)
+│   ├── area_29.jsonc
+│   └── _generated/        # Optional verification outputs (gitignored)
+├── calendars/             # Output .ics files per area
+│   └── area_29/
+│       └── area_29_bergelesgatan.ics
+├── package.json
+└── readme.md
 ```
 
 ---
 
-## 🧰 Requirements
+## Requirements
 
-- **Node.js** v18 or higher (v20+ recommended)
-- `ics` and `date-fns` libraries
+- Node.js v18 or higher (v20+ recommended)
+- Dependencies: `date-fns`
 
 Install dependencies:
 
@@ -48,73 +47,58 @@ npm install
 
 ---
 
-## 🚀 Usage
+## Usage
 
-To generate calendar files:
+Generate `.ics` files:
 
 ```bash
-node generate
+node generate.js
 ```
 
-All `.ics` files will be written to the `calendars/` folder, organized per area.
+This reads source configs from `areas/*.jsonc` and writes calendars into `calendars/`.
+
+### Verify generated area files
+
+If you want to inspect the generated `weeks` output, run:
+
+```bash
+node generate.js --write-area-files
+```
+
+This writes JSONC files into `areas/_generated/` for verification. The folder is gitignored.
 
 ---
 
-## 📜 Comments on Key Files
+## Key Files
 
 ### `generate.js`
 
-This is the main entry point for generating `.ics` files. It orchestrates the following steps:
+Main entry point. It:
 
-1. Ensures the output folder (`calendars/`) exists.
-2. Reads all JSON files in the `areas/` folder.
-3. Processes each area file using `area_file_processor.js`.
-4. Generates `.ics` files for each street in the area using `calendar_generator.js`.
-5. Runs `update-readme-links.js` to update the README with links to the generated calendars.
+1. Reads all `areas/*.jsonc` source files.
+2. Generates `weeks` using `areas/area_generator.js`.
+3. Produces `.ics` files per street using `calendar_generator.js`.
+4. Optionally writes verification area files to `areas/_generated/`.
 
-Run this script with:
+### `area_processor.js`
+
+Takes a fully populated area config (including `years[].weeks`) and generates the per-street calendars.
+
+### `areas/area_generator.js`
+
+Generates `years[].weeks` from `years[].typeFrequency` (automatic or manual). Can be used standalone:
 
 ```bash
-node generate
+node .\areas\area_generator.js .\areas\area_29.jsonc .\areas\_generated\area_29.jsonc
 ```
 
----
-
-### `area_file_processor.js`
-
-This module processes the JSON files in the `areas/` folder. It performs the following tasks:
-
-1. Reads and validates the structure of the JSON files.
-2. Extracts relevant data such as area, streets, pickup days, and event types.
-3. Prepares the data for use by `calendar_generator.js`.
-
-This module ensures that the input data is clean and ready for calendar generation.
+If both `automatic` and `manual` are provided for the same type in a year, `manual` takes precedence and `automatic` is ignored in the generated output.
 
 ---
 
-### `calendar_generator.js`
+## Available Calendars
 
-This module handles the creation of `.ics` files. It includes:
-
-1. **Event Generation**:
-   - Converts the processed data into ICS-compatible events.
-   - Sets `DTSTAMP` to the current runtime.
-
-2. **File Writing**:
-   - Writes the generated `.ics` files to the appropriate folder.
-
-3. **Custom Calendar Names**:
-   - Adds `X-WR-CALNAME` to the ICS file for better display in calendar apps.
-
-This module ensures that the `.ics` files are correctly formatted and ready for use.
-
----
-
-## 🌐 Available Calendars
-
-You can subscribe directly via GitHub Raw URLs.  
-When clicking on the calendar link it will open in a new browser tab.  
-Copy the url and [import that to your calendar app](#-importing-to-calendar-apps).
+You can subscribe directly via GitHub Raw URLs. When you click a calendar link, it opens in a browser tab. Copy the URL and import it in your calendar app.
 
 <!-- auto-generated-calendar-links:start -->
 
@@ -130,119 +114,60 @@ Copy the url and [import that to your calendar app](#-importing-to-calendar-apps
 
 <!-- auto-generated-calendar-links:end -->
 
-## 📥 Importing to Calendar Apps
+---
 
-You can subscribe to the generated `.ics` files in most calendar apps:
+## Importing to Calendar Apps
 
-### 🔗 Google Calendar
+### Google Calendar
 
-> Note: `X-WR-CALNAME` is ignored when using public URL subscriptions.
+Note: `X-WR-CALNAME` is ignored for public URL subscriptions.
 
-1. In Google Calendar:
-   - Click the `+` next to **Other calendars**
-   - Select **From URL**
-   - Paste the `.ics` file URL
-2. (Optional) Rename the calendar manually
-3. (Optional) Change the color of the calendar
+1. Click `+` next to Other calendars
+2. Select From URL
+3. Paste the `.ics` file URL
+4. Optionally rename and recolor
 
-### 🍎 Apple Calendar
+### Apple Calendar
 
-1. In Calendar app: **File → New Calendar Subscription**
+1. File → New Calendar Subscription
 2. Paste the `.ics` file URL
-3. Apple will show the name from `X-WR-CALNAME` 🎉
+3. Apple shows the name from `X-WR-CALNAME`
 
 ---
 
-## ✍️ Example JSON (area_29.json)
+## Example Area Config (JSONC)
 
-```json
+Any type used in `typeFrequency` must also be defined in `types`. If it’s missing, the weeks still get generated, but events for that type are skipped (with a warning).
+
+```jsonc
 {
   "area": 29,
-  "calendarTitle": "Sopkalender 2025",
+  "calendarTitle": "Sopkalender",
   "streetPickup": [
-    {
-      "street": "Bergelésgatan",
-      "pickupDay": "Tuesday"
-    },
-    {
-      "street": "Innövervägen",
-      "pickupDay": "Tuesday"			
-    },
-    {
-      "street": "Tallhedsgatan",
-      "pickupDay": "Tuesday"			
-    },
-    {
-      "street": "Porsnäsvägen",
-      "pickupDay": "Tuesday"			
-		}
+    { "street": "Bergelesgatan", "pickupDay": "Tuesday" },
+    { "street": "Innovervagen", "pickupDay": "Tuesday" }
   ],
   "types": [
-    {
-      "type": "M",
-      "description": "Matavfall",
-      "icon": "🟫"
-    },
-    {
-      "type": "R",
-      "description": "Restavfall",
-      "icon": "🟩"
-    }
+    { "type": "R", "description": "Plast och Restavfall", "icon": "🟩" },
+    { "type": "M", "description": "Matavfall", "icon": "🟫" },
+    { "type": "PR", "description": "Plast och Restavfall", "icon": "🟪⬛" },
+    { "type": "PM", "description": "Papper och Matavfall", "icon": "🟨🟫" }
   ],
-  "year": 2025,
-  "week": [
+  "years": [
     {
-      "weekNumber": 2,
-      "type": "M",
-      "pickupDayDiff": 0,
-      "description": "Trettondedag jul: Låt sopkärlet stå tills det blir tömt."
+      "year": 2026,
+      "typeFrequency": {
+        "M": { "manual": [2, 6, 10] },
+        "R": { "manual": [3, 7, 11] }
+      },
+      "weeks": []
     }
-    {
-      "weekNumber": 3,
-      "type": "R"
-    },
-    {
-      "weekNumber": 6,
-      "type": "M"
-    },
-    ...
   ]
 }
 ```
 
 ---
 
-## 🛠️ Customizing
+## License
 
-You can add more areas and streets by creating new JSON files in the `areas/` folder using the same structure.
-
-### `areas/area-updater.js` (Generate area_xx.jsonc from template)
-
-To avoid manually filling in all weeks (`weeks`), you can use `area-updater.js` together with a template file in `areas/templates/`.
-
-1. Create or update a template, e.g. `areas/templates/area_29-2025_2026.jsonc`, with:
-  - `area`, `calendarTitle`, `streetPickup`, `types`
-  - `years[].year` and `years[].typeFrequency` (with `automatic` or `manual`)
-  - Empty `years[].weeks: []`
-2. Run from the project root (Windows/PowerShell):
-
-  ```bash
-  node .\areas\area-updater.js .\areas\templates\area_29-2025_2026.jsonc .\areas\area_29.jsonc
-  ```
-
-  This generates an updated `areas/area_29.jsonc` where `years[].weeks` is automatically populated and grouped with month comments.
-
-3. If you want plain JSON without comments, run instead:
-
-  ```bash
-  node .\areas\area-updater.js .\areas\templates\area_29-2025_2026.jsonc .\areas\area_29.json --without-month-comments
-  ```
-
-You can reuse the same template file when adding more years – simply update `years` in the template and run the script again against the desired `area_xx.jsonc`.
-
-
----
-
-## 📄 License
-
-MIT — free to use and adapt for your municipality or neighborhood.
+MIT - free to use and adapt for your municipality or neighborhood.
