@@ -389,7 +389,7 @@ function populateWeeksInConfig(config) {
 
     const typeFrequency = yearEntry.typeFrequency || {};
 
-    // 🔧 Normalize: if both automatic & manual present, keep manual only
+    // Normalize: if both automatic & manual present, keep manual only
     normalizeTypeFrequencyForYear(year, typeFrequency);
 
     const generatedWeeks = generateWeeksForYear(year, typeFrequency);
