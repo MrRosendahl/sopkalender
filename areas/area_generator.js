@@ -1,7 +1,7 @@
 // area_generator.js
 // ---------------------------------------------------------------------------
 // Purpose
-//   - Read a JSON/JSONC config file describing an area and its waste schedule.
+//   - Read a JSON/JSONC config file describing an area and its recycle schedule.
 //   - For each year, look at "typeFrequency" and generate "weeks" entries:
 //       { weekNumber: number, type: string }.
 //   - For each type within typeFrequency, one of these modes is supported:

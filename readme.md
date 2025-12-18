@@ -1,6 +1,6 @@
-# Sopkalender (iCal Generator for Waste Pickup)
+# Sopkalender (iCal Generator for Recycle Pickup)
 
-Generate `.ics` calendar files for household waste pickup schedules. Import into Google Calendar, Apple Calendar, or Outlook.
+Generate `.ics` calendar files for household recycle pickup schedules. Import into Google Calendar, Apple Calendar, or Outlook.
 
 ---
 
@@ -18,14 +18,16 @@ Generate `.ics` calendar files for household waste pickup schedules. Import into
 ## File Structure
 
 ```
-├── generate.js            # Main script to generate .ics files
+├── generate.js            # Main script to generate .ics files (optional parameter --write-area-files)
 ├── area_processor.js      # Processes area configs and prepares data for calendar generation
 ├── calendar_generator.js  # Creates ICS files and events
+├── update-readme-links.js # Updated readme `auto-generated-calendar-links`
 ├── utils.js               # File/date helpers
 ├── areas/                 # Source area configs (JSONC)
-│   ├── area_29.jsonc
+│   ├── area_generator.js  # Generate area config data per area file, optionally write files to `_generated` folder
+│   ├── area_29.jsonc      # Area configuration file
 │   └── _generated/        # Optional verification outputs (gitignored)
-├── calendars/             # Output .ics files per area
+├── calendars/             # Output .ics files per area and streetPickup
 │   └── area_29/
 │       └── area_29_bergelesgatan.ics
 ├── package.json
@@ -148,21 +150,32 @@ Any type used in `typeFrequency` must also be defined in `types`. If it’s miss
   "area": 29,
   "calendarTitle": "Sopkalender",
   "streetPickup": [
+    // Example of different pickup days. 
+    // If a street is divided into multiple pickup days, 
+    // create a street calender by street number or similar
     { "street": "Bergelesgatan", "pickupDay": "Tuesday" },
-    { "street": "Innovervagen", "pickupDay": "Tuesday" }
+    { "street": "Innovervagen", "pickupDay": "Monday" },
+    { "street": "Tallhedsgatan", "pickupDay": "Monday" },
+    { "street": "Porsnäsvägen_1_50", "pickupDay": "Monday" },
+    { "street": "Porsnäsvägen_51_100", "pickupDay": "Tuesday" }
   ],
   "types": [
+    // Define recycle types used in this area.
     { "type": "R", "description": "Plast och Restavfall", "icon": "🟩" },
     { "type": "M", "description": "Matavfall", "icon": "🟫" },
     { "type": "PR", "description": "Plast och Restavfall", "icon": "🟪⬛" },
     { "type": "PM", "description": "Papper och Matavfall", "icon": "🟨🟫" }
   ],
-  "years": [
-    {
+  "years": [    
+    {      
       "year": 2026,
       "typeFrequency": {
+        // Example of combining both automatic and manual
         "M": { "manual": [2, 6, 10] },
-        "R": { "manual": [3, 7, 11] }
+        "R": { "manual": [3, 7, 11] },
+        "PM": { "automatic": { "everyNWeeks": 4, "startWeek": 15 } },
+        "PR": { "automatic": { "everyNWeeks": 2, "startWeek": 12 } }
+        
       },
       "weeks": []
     }
