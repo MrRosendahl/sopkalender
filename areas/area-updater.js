@@ -63,6 +63,36 @@ function stripJsonComments(jsonc) {
   return withoutBlockComments;
 }
 
+/**
+ * Loads and parses a JSON/JSONC config file from disk.
+ *
+ * @param {string} inputPath
+ * @returns {any|null}
+ */
+function loadConfigFromFile(inputPath) {
+  if (!inputPath) {
+    console.error("No input path provided.");
+    return null;
+  }
+
+  const absoluteInput = path.resolve(process.cwd(), inputPath);
+
+  if (!fs.existsSync(absoluteInput)) {
+    console.error("Input file does not exist:", absoluteInput);
+    return null;
+  }
+
+  const raw = fs.readFileSync(absoluteInput, "utf8");
+  const jsonWithoutComments = stripJsonComments(raw);
+
+  try {
+    return JSON.parse(jsonWithoutComments);
+  } catch (err) {
+    console.error("Failed to parse JSON/JSONC from input file:", err.message);
+    return null;
+  }
+}
+
 // ===========================================================================
 // ISO week helpers
 // ===========================================================================
@@ -555,6 +585,54 @@ function buildJsoncOutput(config, withMonthComments) {
 // ===========================================================================
 
 /**
+ * Loads a config file, generates weeks, and returns updated config.
+ *
+ * @param {string} inputPath
+ * @returns {any|null}
+ */
+function buildUpdatedConfigFromFile(inputPath) {
+  const config = loadConfigFromFile(inputPath);
+  if (!config) {
+    return null;
+  }
+
+  return populateWeeksInConfig(config);
+}
+
+/**
+ * Returns formatted output for an updated config.
+ *
+ * @param {any} updatedConfig
+ * @param {boolean} withMonthComments
+ * @returns {string}
+ */
+function getUpdatedConfigOutput(updatedConfig, withMonthComments) {
+  if (withMonthComments) {
+    return buildJsoncOutput(updatedConfig, true);
+  }
+  return JSON.stringify(updatedConfig, null, 2);
+}
+
+/**
+ * Writes the updated config to disk and returns the absolute output path.
+ *
+ * @param {any} updatedConfig
+ * @param {string} outputPath
+ * @param {boolean} withMonthComments
+ * @returns {string|null}
+ */
+function writeUpdatedConfigToFile(updatedConfig, outputPath, withMonthComments) {
+  if (!outputPath) {
+    return null;
+  }
+
+  const absoluteOutput = path.resolve(process.cwd(), outputPath);
+  const output = getUpdatedConfigOutput(updatedConfig, withMonthComments);
+  fs.writeFileSync(absoluteOutput, output, "utf8");
+  return absoluteOutput;
+}
+
+/**
  * CLI:
  *   node area-updater.js <input.jsonc> [output.jsonc] [--without-month-comments]
  */
@@ -572,46 +650,22 @@ function main() {
     process.exit(1);
   }
 
-  const absoluteInput = path.resolve(process.cwd(), inputPath);
-
-  if (!fs.existsSync(absoluteInput)) {
-    console.error("Input file does not exist:", absoluteInput);
+  const updatedConfig = buildUpdatedConfigFromFile(inputPath);
+  if (!updatedConfig) {
     process.exit(1);
   }
 
-  const raw = fs.readFileSync(absoluteInput, "utf8");
-  const jsonWithoutComments = stripJsonComments(raw);
+  const withMonthComments = !withoutMonthComments;
+  const output = getUpdatedConfigOutput(updatedConfig, withMonthComments);
 
-  let config;
-  try {
-    config = JSON.parse(jsonWithoutComments);
-  } catch (err) {
-    console.error("Failed to parse JSON/JSONC from input file:", err.message);
-    process.exit(1);
-  }
-
-  // 1) Generate weeks for each year (and normalize typeFrequency)
-  const updatedConfig = populateWeeksInConfig(config);
-
-  // 2) Output JSONC (default) or pure JSON (flag)
-  if (withoutMonthComments) {
-    const outputJson = JSON.stringify(updatedConfig, null, 2);
-    if (outputPath) {
-      const absoluteOutput = path.resolve(process.cwd(), outputPath);
-      fs.writeFileSync(absoluteOutput, outputJson, "utf8");
-      console.log("Written updated JSON to:", absoluteOutput);
-    } else {
-      console.log(outputJson);
-    }
+  if (outputPath) {
+    const absoluteOutput = writeUpdatedConfigToFile(updatedConfig, outputPath, withMonthComments);
+    console.log(
+      `Written updated ${withMonthComments ? "JSONC" : "JSON"} to:`,
+      absoluteOutput
+    );
   } else {
-    const jsoncOutput = buildJsoncOutput(updatedConfig, true);
-    if (outputPath) {
-      const absoluteOutput = path.resolve(process.cwd(), outputPath);
-      fs.writeFileSync(absoluteOutput, jsoncOutput, "utf8");
-      console.log("Written updated JSONC to:", absoluteOutput);
-    } else {
-      console.log(jsoncOutput);
-    }
+    console.log(output);
   }
 }
 
@@ -623,6 +677,7 @@ if (require.main === module) {
 // Export some pieces for possible reuse or testing
 module.exports = {
   stripJsonComments,
+  loadConfigFromFile,
   getISOWeek,
   getISOWeeksInYear,
   getMonthNameForWeek,
@@ -631,5 +686,8 @@ module.exports = {
   normalizeTypeFrequencyForYear,
   writeTypeFrequencyJsonc,
   populateWeeksInConfig,
-  buildJsoncOutput
+  buildJsoncOutput,
+  buildUpdatedConfigFromFile,
+  getUpdatedConfigOutput,
+  writeUpdatedConfigToFile
 };

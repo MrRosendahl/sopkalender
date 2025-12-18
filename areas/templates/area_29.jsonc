@@ -29,6 +29,16 @@
       "type": "M",
       "description": "Matavfall",
       "icon": "🟫"
+    },
+    {
+      "type": "PR",
+      "description": "Plast och Restavfall",
+      "icon": "🟪⬛"
+    },
+    {
+      "type": "PM",
+      "description": "Papper och Matavfall",
+      "icon": "🟨🟫"
     }
   ],
   "years": [

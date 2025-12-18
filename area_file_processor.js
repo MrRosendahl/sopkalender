@@ -25,6 +25,50 @@ function getStreetFilePath(area, street, calendarPath) {
   return path.join(calendarPath, `area_${String(area)}`, `area_${String(area)}_${safeStreet}.ics`); // Ensure area is a string
 }
 
+/// <summary>
+/// Processes a single area config object to generate calendars for its streets.
+/// </summary>
+/// <param name="data">The parsed area config object.</param>
+/// <param name="calendarPath">The path to the calendar folder.</param>
+/// <param name="sourceLabel">Optional label for logging.</param>
+function generateCalendarsForAreaConfig(data, calendarPath, dtstamp, sourceLabel = 'area config') {
+  if (!data) {
+    console.error(`? No data provided for ${sourceLabel}`);
+    return;
+  }
+
+  const { area, years, types, streetPickup, calendarTitle } = data;
+  const typeMap = createTypeMap(types); // Create a map of types
+
+  if (!Array.isArray(years) || years.length === 0) {
+    console.error(`? No years data found in ${sourceLabel} (area ${area})`);
+    return;
+  }
+
+  // Ensure the folder for the area exists
+  const areaFolder = path.join(calendarPath, `area_${area}`);
+  ensureFolderExists(areaFolder);
+
+  // Generate one calendar per street, containing events from all years
+  streetPickup.forEach(({ street, pickupDay }) => {
+    let events = [];
+
+    years.forEach(({ year, weeks }) => {
+      if (!year || !Array.isArray(weeks)) {
+        console.warn(`? Invalid year entry in ${sourceLabel} (area ${area}) - skipping`);
+        return;
+      }
+      events = events.concat(
+        createEventsForStreet(area, street, year, weeks, typeMap, pickupDay, dtstamp)
+      );
+    });
+
+    const filePath = getStreetFilePath(area, street, calendarPath);
+    const fullTitle = `${calendarTitle} - ${street}`;
+    generateCalendar(filePath, events, fullTitle, dtstamp);
+  });
+
+}
 
 /// <summary>
 /// Processes a single area file to generate calendars for its streets.
@@ -40,43 +84,14 @@ function generateCalendarsForAreaFile(file, areasFolder, calendarPath, dtstamp) 
     //data = JSON.parse(fs.readFileSync(fullPath, 'utf8')); // Read and parse the JSON file
     data = readJsoncFile(fullPath); // Use the readJsoncFile function to read and parse the JSON file
   } catch (err) {
-    console.error(`❌ Error reading or parsing ${file}:`, err.message);
+    console.error(`? Error reading or parsing ${file}:`, err.message);
     return;
   }
 
-  const { area, years, types, streetPickup, calendarTitle } = data;
-  const typeMap = createTypeMap(types); // Create a map of types
-
-  if (!Array.isArray(years) || years.length === 0) {
-    console.error(`? No years data found in ${file} (area ${area})`);
-    return;
-  }
-
-  // Ensure the folder for the area exists
-  const areaFolder = path.join(calendarPath, `area_${area}`);
-  ensureFolderExists(areaFolder);
-
-  // Generate one calendar per street, containing events from all years
-  streetPickup.forEach(({ street, pickupDay }) => {
-    let events = [];
-
-    years.forEach(({ year, weeks }) => {
-      if (!year || !Array.isArray(weeks)) {
-        console.warn(`? Invalid year entry in ${file} (area ${area}) - skipping`);
-        return;
-      }
-      events = events.concat(
-        createEventsForStreet(area, street, year, weeks, typeMap, pickupDay, dtstamp)
-      );
-    });
-
-    const filePath = getStreetFilePath(area, street, calendarPath);
-    const fullTitle = `${calendarTitle} - ${street}`;
-    generateCalendar(filePath, events, fullTitle, dtstamp);
-  });
-
+  generateCalendarsForAreaConfig(data, calendarPath, dtstamp, fullPath);
 }
 
 module.exports = {
-  generateCalendarsForAreaFile
+  generateCalendarsForAreaFile,
+  generateCalendarsForAreaConfig
 };
