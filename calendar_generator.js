@@ -1,3 +1,4 @@
+const fs = require('fs'); // Import file system module
 const { getDateFromWeek, toFileSafeName, writeFileSync, getEndDateForDate } = require('./utils'); // Import utility functions
 
 // Maps weekday names to ISO weekday numbers (Monday = 1, Sunday = 7)
@@ -13,6 +14,83 @@ const weekdayMap = {
 
 const lineEnding = '\r\n'; // Use CRLF for iCalendar format
 const descLineEnding = '\\n';
+const compareIgnorePrefixes = ['DTSTAMP', 'LAST-MODIFIED', 'SEQUENCE'];
+
+function getLineValue(block, prefix) {
+  const match = block.match(new RegExp(`^${prefix}:(.*)$`, 'm'));
+  return match ? match[1].trim() : null;
+}
+
+function normalizeEventBlock(block) {
+  const lines = block.replace(/\r\n/g, '\n').split('\n').filter(Boolean);
+  const filtered = lines.filter((line) => {
+    return !compareIgnorePrefixes.some((prefix) => line.startsWith(`${prefix}:`));
+  });
+  return filtered.join('\n');
+}
+
+function parseExistingEvents(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return new Map();
+  }
+
+  const content = fs.readFileSync(filePath, 'utf8');
+  const blocks = content.match(/BEGIN:VEVENT[\s\S]*?END:VEVENT(?:\r?\n|$)/g) || [];
+  const events = new Map();
+
+  blocks.forEach((block) => {
+    const uid = getLineValue(block, 'UID');
+    if (!uid) {
+      return;
+    }
+
+    events.set(uid, {
+      dtstamp: getLineValue(block, 'DTSTAMP'),
+      lastModified: getLineValue(block, 'LAST-MODIFIED'),
+      sequence: getLineValue(block, 'SEQUENCE'),
+      normalized: normalizeEventBlock(block)
+    });
+  });
+
+  return events;
+}
+
+function upsertLine(lines, prefix, value, insertBefore) {
+  const line = `${prefix}:${value}`;
+  const index = lines.findIndex((l) => l.startsWith(`${prefix}:`));
+  if (index !== -1) {
+    lines[index] = line;
+    return lines;
+  }
+
+  const insertIndex = lines.findIndex((l) => l === insertBefore);
+  if (insertIndex === -1) {
+    lines.splice(lines.length - 1, 0, line);
+  } else {
+    lines.splice(insertIndex, 0, line);
+  }
+
+  return lines;
+}
+
+function applyEventTimestamps(event, dtstamp, lastModified, sequence) {
+  const lines = event.split(lineEnding).filter((line) => line.length > 0);
+  upsertLine(lines, 'DTSTAMP', dtstamp, 'END:VEVENT');
+
+  if (lastModified === null) {
+    const filtered = lines.filter((line) => !line.startsWith('LAST-MODIFIED:'));
+    lines.length = 0;
+    lines.push(...filtered);
+  } else if (lastModified) {
+    upsertLine(lines, 'LAST-MODIFIED', lastModified, 'END:VEVENT');
+  }
+
+  if (sequence !== null && sequence !== undefined) {
+    upsertLine(lines, 'SEQUENCE', sequence, 'END:VEVENT');
+  }
+
+  return lines.join(lineEnding) + lineEnding;
+}
 
 /// <summary>
 /// Creates ICS events based on a weekly schedule and pickup day.
@@ -67,8 +145,8 @@ function createEventsForStreet(area, street, year, weeks, typeMap, pickupDayName
       `CLASS:PUBLIC${lineEnding}` +
       `DURATION:P1DT${lineEnding}` +
       `DESCRIPTION:${description}${lineEnding}` +
-      `END:VEVENT${lineEnding}` +
-      `LAST-MODIFIED:${dtstamp}${lineEnding}`;
+      `LAST-MODIFIED:${dtstamp}${lineEnding}` +
+      `END:VEVENT${lineEnding}`;
       
       return event;
     });
@@ -98,7 +176,27 @@ function getCalendarHeader(calendarName, calendarDescription) {
 /// <param name="currentDate">The current Date.</param>
 function generateCalendar(filePath, events, calendarName, calendarDescription) {
   const header = getCalendarHeader(calendarName, calendarDescription); // Add lines at the top of the calendar
-  const eventsResponse = events.join(lineEnding);  
+  const existingEvents = parseExistingEvents(filePath);
+  const updatedEvents = events.map((event) => {
+    const uid = getLineValue(event, 'UID');
+    if (!uid) {
+      return event;
+    }
+
+    const normalized = normalizeEventBlock(event);
+    const existing = existingEvents.get(uid);
+
+    if (existing && existing.normalized === normalized) {
+      const eventDtstamp = getLineValue(event, 'DTSTAMP');
+      const preservedDtstamp = existing.dtstamp || eventDtstamp;
+      const preservedLastModified = existing.lastModified || preservedDtstamp;
+      return applyEventTimestamps(event, preservedDtstamp, preservedLastModified, existing.sequence);
+    }
+
+    const newDtstamp = getLineValue(event, 'DTSTAMP');
+    return applyEventTimestamps(event, newDtstamp, newDtstamp);
+  });
+  const eventsResponse = updatedEvents.join(lineEnding);  
 
   // Inject X-WR-CALNAME just after CALSCALE
   let output = eventsResponse.replace(
