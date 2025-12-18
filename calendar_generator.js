@@ -258,6 +258,7 @@ function generateCalendar(filePath, events, calendarName, calendarDescription) {
   );    
 
   output = header + output;
+  output += `END:VCALENDAR${lineEnding}`;
 
   // Write the ICS file to disk
   writeFileSync(filePath, output, 'utf8');
