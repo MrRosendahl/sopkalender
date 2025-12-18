@@ -367,6 +367,25 @@ function writeWeeksArrayJsonc(lines, year, weeks, indent, withMonthComments) {
 // Config manipulation
 // ===========================================================================
 
+function formatInlineValue(value) {
+  if (Array.isArray(value)) {
+    return JSON.stringify(value);
+  }
+
+  if (value && typeof value === "object") {
+    return formatInlineObject(value);
+  }
+
+  return JSON.stringify(value);
+}
+
+function formatInlineObject(obj) {
+  const entries = Object.entries(obj).map(
+    ([key, val]) => `"${key}": ${formatInlineValue(val)}`
+  );
+  return `{ ${entries.join(", ")} }`;
+}
+
 /**
  * Resolves "automatic vs manual" conflicts in a typeFrequency object:
  *   - If both are present → manual wins, automatic is removed.
@@ -450,29 +469,9 @@ function writeTypeFrequencyJsonc(lines, typeFrequency) {
     const cfg = typeFrequency[typeName] || {};
     const isLastType = typeIndex === typeNames.length - 1;
 
-    lines.push(`        "${typeName}": {`);
-
-    const keys = Object.keys(cfg);
-    keys.forEach((key, keyIndex) => {
-      const isLastKey = keyIndex === keys.length - 1;
-
-      if (key === "manual" && Array.isArray(cfg.manual)) {
-        // Manual: always single line array
-        const arrStr = JSON.stringify(cfg.manual); // e.g. "[31,33,37]"
-        lines.push(`          "manual": ${arrStr}${isLastKey ? "" : ","}`);
-      } else {
-        // Everything else: normal pretty JSON with extra indent
-        const value = cfg[key];
-        const valueLines = JSON.stringify(value, null, 2).split("\n");
-        valueLines.forEach((vl, i) => {
-          const prefix = i === 0 ? `          "${key}": ` : "          ";
-          const suffix = i === valueLines.length - 1 ? (isLastKey ? "" : ",") : "";
-          lines.push(prefix + vl + suffix);
-        });
-      }
-    });
-
-    lines.push(`        }${isLastType ? "" : ","}`);
+    lines.push(
+      `        "${typeName}": ${formatInlineValue(cfg)}${isLastType ? "" : ","}`
+    );
   });
 
   lines.push("      },");
@@ -517,14 +516,7 @@ function buildJsoncOutput(config, withMonthComments) {
     lines.push(`  "streetPickup": [`);
     config.streetPickup.forEach((sp, index) => {
       const trailingComma = index === config.streetPickup.length - 1 ? "" : ",";
-      lines.push(
-        "    " +
-          JSON.stringify(sp, null, 2)
-            .split("\n")
-            .map((l, i) => (i === 0 ? l : "    " + l))
-            .join("\n") +
-          trailingComma
-      );
+      lines.push(`    ${formatInlineValue(sp)}${trailingComma}`);
     });
     lines.push("  ],");
   }
@@ -534,14 +526,7 @@ function buildJsoncOutput(config, withMonthComments) {
     lines.push(`  "types": [`);
     config.types.forEach((t, index) => {
       const trailingComma = index === config.types.length - 1 ? "" : ",";
-      lines.push(
-        "    " +
-          JSON.stringify(t, null, 2)
-            .split("\n")
-            .map((l, i) => (i === 0 ? l : "    " + l))
-            .join("\n") +
-          trailingComma
-      );
+      lines.push(`    ${formatInlineValue(t)}${trailingComma}`);
     });
     lines.push("  ],");
   }
