@@ -216,6 +216,31 @@ You can subscribe to the generated `.ics` files in most calendar apps:
 
 You can add more areas and streets by creating new JSON files in the `areas/` folder using the same structure.
 
+### `areas/area-updater.js` (Generate area_xx.jsonc from template)
+
+To avoid manually filling in all weeks (`weeks`), you can use `area-updater.js` together with a template file in `areas/templates/`.
+
+1. Create or update a template, e.g. `areas/templates/area_29-2025_2026.jsonc`, with:
+  - `area`, `calendarTitle`, `streetPickup`, `types`
+  - `years[].year` and `years[].typeFrequency` (with `automatic` or `manual`)
+  - Empty `years[].weeks: []`
+2. Run from the project root (Windows/PowerShell):
+
+  ```bash
+  node .\areas\area-updater.js .\areas\templates\area_29-2025_2026.jsonc .\areas\area_29.jsonc
+  ```
+
+  This generates an updated `areas/area_29.jsonc` where `years[].weeks` is automatically populated and grouped with month comments.
+
+3. If you want plain JSON without comments, run instead:
+
+  ```bash
+  node .\areas\area-updater.js .\areas\templates\area_29-2025_2026.jsonc .\areas\area_29.json --without-month-comments
+  ```
+
+You can reuse the same template file when adding more years – simply update `years` in the template and run the script again against the desired `area_xx.jsonc`.
+
+
 ---
 
 ## 📄 License
