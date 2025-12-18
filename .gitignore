@@ -135,5 +135,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# Generated area files
-areas/_generated/
+# Generated area folder and files
+areas/_generated
+areas/_generated/*
