@@ -1,7 +1,7 @@
 {
   "name": "sopkalender",
-  "version": "1.0.0",
-  "description": "Generates iCal files for Swedish waste pickup schedule.",
+  "version": "2.0.0",
+  "description": "Generates iCal files for Swedish recycle pickup schedule.",
   "main": "generate.js",
   "scripts": {
     "generate": "node generate.js"
