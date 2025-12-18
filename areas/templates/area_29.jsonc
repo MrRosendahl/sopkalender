@@ -55,6 +55,21 @@
         }
       },
       "weeks": []
+    },
+    {
+      "year": 2027,
+      "typeFrequency": {
+        "PM": {
+          "automatic": {
+            "everyNWeeks": 2,
+            "startWeek": 31
+          }
+        },
+        "PR": {
+          "manual": [31, 33, 37, 39, 40]
+        }
+      },
+      "weeks": []
     }
   ]
 }
