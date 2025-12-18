@@ -13,7 +13,12 @@ const areasFolder = path.resolve(__dirname, 'areas'); // Folder containing area 
 const generatedAreasFolder = path.resolve(__dirname, 'areas', '_generated'); // Folder containing generated area JSON files
 const calendarPath = path.resolve(__dirname, 'calendars'); // Folder to store generated calendars
 
-function createDTSTAMP() {
+/**
+ * Generates a UTC timestamp string in iCalendar format.
+ *
+ * @returns A string like "20250102T135959Z".
+ */
+function createDTSTAMP() {   
   const pad = (n) => String(n).padStart(2, '0');
   const now = new Date();
   const year = now.getUTCFullYear();
@@ -31,7 +36,7 @@ try {
   ensureFolderExists(calendarPath);
 
   const args = process.argv.slice(2);
-  const writeAreaFiles = args.includes('--write-area-files');
+  const writeAreaFiles = args.includes('--write-area-files'); // Toggle verification output
   const inputFolder = areasFolder;
 
   const areaFiles = fs
@@ -40,7 +45,7 @@ try {
   
   const dtstamp = createDTSTAMP(); // Generate the current timestamp in UTC format
 
-  // Generate street calendars for each area file
+  // Generate calendars (or write verification files) for each source config.
   areaFiles.forEach((file) => {
     const inputPath = path.join(inputFolder, String(file));
     const updatedConfig = buildUpdatedConfigFromFile(inputPath);
@@ -48,6 +53,7 @@ try {
       return;
     }
 
+    // Write generated JSONC for inspection instead of calendars.
     if (writeAreaFiles) {      
       ensureFolderExists(generatedAreasFolder);
       const outputPath = path.join(generatedAreasFolder, String(file));
@@ -61,10 +67,11 @@ try {
   });
 
   if (writeAreaFiles === false) {
-    // Run update-readme-links.js after all files are processed
+    // Update README links only when calendars are generated.
     execSync('node update-readme-links.js', { stdio: 'inherit' });
     console.log('✅ Successfully executed update-readme-links.js');
   }  
 } catch (err) {
   console.error('❌ Error during processing:', err);
 }
+

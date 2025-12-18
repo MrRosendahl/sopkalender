@@ -367,7 +367,14 @@ function writeWeeksArrayJsonc(lines, year, weeks, indent, withMonthComments) {
 // Config manipulation
 // ===========================================================================
 
+/**
+ * Formats a value as a single-line JSONC fragment.
+ *
+ * @param {any} value Value to format.
+ * @returns Inline JSON string.
+ */
 function formatInlineValue(value) {
+  // Keep arrays/objects inline to match the preferred JSONC style.
   if (Array.isArray(value)) {
     return JSON.stringify(value);
   }
@@ -379,7 +386,14 @@ function formatInlineValue(value) {
   return JSON.stringify(value);
 }
 
+/**
+ * Formats an object as a single-line JSONC fragment.
+ *
+ * @param {any} obj Object to format.
+ * @returns Inline JSON string.
+ */
 function formatInlineObject(obj) {
+  // Preserve key order when creating one-line objects.
   const entries = Object.entries(obj).map(
     ([key, val]) => `"${key}": ${formatInlineValue(val)}`
   );
@@ -462,6 +476,7 @@ function populateWeeksInConfig(config) {
  * @param {Record<string, any>} typeFrequency
  */
 function writeTypeFrequencyJsonc(lines, typeFrequency) {
+  // Emit compact one-line objects for typeFrequency entries.
   lines.push('      "typeFrequency": {');
 
   const typeNames = Object.keys(typeFrequency);
@@ -676,5 +691,6 @@ module.exports = {
   getUpdatedConfigOutput,
   writeUpdatedConfigToFile
 };
+
 
 

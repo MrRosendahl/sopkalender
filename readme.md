@@ -109,6 +109,10 @@ You can subscribe directly via GitHub Raw URLs. When you click a calendar link, 
 - 🗓️ [area_29_innovervagen.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/area_29_innovervagen.ics)
 - 🗓️ [area_29_porsnasvagen.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/area_29_porsnasvagen.ics)
 - 🗓️ [area_29_tallhedsgatan.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/area_29_tallhedsgatan.ics)
+- 🗓️ [area_29_bergelesgatan.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/old/area_29_bergelesgatan.ics)
+- 🗓️ [area_29_innovervagen.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/old/area_29_innovervagen.ics)
+- 🗓️ [area_29_porsnasvagen.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/old/area_29_porsnasvagen.ics)
+- 🗓️ [area_29_tallhedsgatan.ics](https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars/area_29/old/area_29_tallhedsgatan.ics)
 
 </details>
 

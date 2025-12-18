@@ -2,11 +2,12 @@ const path = require('path'); // Import path module for file path manipulation
 const { ensureFolderExists, toFileSafeName, readJsoncFile } = require('./utils'); // Import utility functions
 const { createEventsForStreet, generateCalendar } = require('./calendar_generator'); // Import calendar generation functions
 
-/// <summary>
-/// Creates a map of types to metadata (icon, description).
-/// </summary>
-/// <param name="types">An array of type objects.</param>
-/// <returns>A map of types to metadata.</returns>
+/**
+ * Creates a map of types to metadata (icon, description).
+ *
+ * @param {any} types An array of type objects.
+ * @returns A map of types to metadata.
+ */
 function createTypeMap(types) {
   return types.reduce((acc, t) => {
     acc[t.type] = { icon: t.icon, description: t.description };
@@ -14,23 +15,25 @@ function createTypeMap(types) {
   }, {});
 }
 
-/// <summary>
-/// Generates a file path for a street's calendar file.
-/// </summary>
-/// <param name="area">The area identifier.</param>
-/// <param name="street">The name of the street.</param>
-/// <returns>The file path for the street's calendar file.</returns>
+/**
+ * Generates a file path for a street's calendar file.
+ *
+ * @param {any} area The area identifier.
+ * @param {any} street The name of the street.
+ * @returns The file path for the street's calendar file.
+ */
 function getStreetFilePath(area, street, calendarPath) {
   const safeStreet = toFileSafeName(street); // Convert street name to a file-safe string
   return path.join(calendarPath, `area_${String(area)}`, `area_${String(area)}_${safeStreet}.ics`); // Ensure area is a string
 }
 
-/// <summary>
-/// Processes a single area config object to generate calendars for its streets.
-/// </summary>
-/// <param name="data">The parsed area config object.</param>
-/// <param name="calendarPath">The path to the calendar folder.</param>
-/// <param name="sourceLabel">Optional label for logging.</param>
+/**
+ * Processes a single area config object to generate calendars for its streets.
+ *
+ * @param {any} data The parsed area config object.
+ * @param {any} calendarPath The path to the calendar folder.
+ * @param {any} sourceLabel Optional label for logging.
+ */
 function generateCalendarsForAreaConfig(data, calendarPath, dtstamp, sourceLabel = 'area config') {
   if (!data) {
     console.error(`? No data provided for ${sourceLabel}`);
@@ -58,6 +61,7 @@ function generateCalendarsForAreaConfig(data, calendarPath, dtstamp, sourceLabel
         console.warn(`? Invalid year entry in ${sourceLabel} (area ${area}) - skipping`);
         return;
       }
+      // Merge per-year events into a single street calendar.
       events = events.concat(
         createEventsForStreet(area, street, year, weeks, typeMap, pickupDay, dtstamp)
       );
@@ -70,18 +74,19 @@ function generateCalendarsForAreaConfig(data, calendarPath, dtstamp, sourceLabel
 
 }
 
-/// <summary>
-/// Processes a single area file to generate calendars for its streets.
-/// </summary>
-/// <param name="file">The name of the area file to process.</param>
-/// <param name="areasFolder">The folder containing area files.</param>
-/// <param name="calendarPath">The path to the calendar folder.</param>
+/**
+ * Reads an area JSONC file and generates calendars for its streets.
+ *
+ * @param {any} file The area filename to process (e.g., "area_29.jsonc").
+ * @param {any} areasFolder The folder containing area JSONC files.
+ * @param {any} calendarPath The path to the calendars output folder.
+ * @param {any} dtstamp UTC timestamp string for the run (e.g., "20250102T135959Z").
+ */
 function generateCalendarsForAreaFile(file, areasFolder, calendarPath, dtstamp) {
   const fullPath = path.join(areasFolder, String(file)); // Ensure file is a string
   let data;
 
   try {
-    //data = JSON.parse(fs.readFileSync(fullPath, 'utf8')); // Read and parse the JSON file
     data = readJsoncFile(fullPath); // Use the readJsoncFile function to read and parse the JSON file
   } catch (err) {
     console.error(`? Error reading or parsing ${file}:`, err.message);
@@ -95,3 +100,4 @@ module.exports = {
   generateCalendarsForAreaFile,
   generateCalendarsForAreaConfig
 };
+

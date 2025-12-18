@@ -5,8 +5,14 @@ const calendarsDir = path.join(__dirname, 'calendars');
 const readmePath = path.join(__dirname, 'README.md');
 const githubBaseUrl = 'https://raw.githubusercontent.com/MrRosendahl/sopkalender/refs/heads/main/calendars';
 
-// Recursively find all .ics files
+/**
+ * Recursively finds all .ics files under a directory.
+ *
+ * @param {any} dir Root directory to search.
+ * @returns Array of file paths.
+ */
 function findIcsFiles(dir) {
+  // Walk the calendars directory and collect .ics file paths.
   let files = [];
   fs.readdirSync(dir, { withFileTypes: true }).forEach(entry => {
     const fullPath = path.join(dir, entry.name);
@@ -19,8 +25,14 @@ function findIcsFiles(dir) {
   return files;
 }
 
-// Group links by area number
+/**
+ * Groups calendar links by area number.
+ *
+ * @param {any} icsFiles Array of .ics file paths.
+ * @returns Map of area number to markdown links.
+ */
 function groupByArea(icsFiles) {
+  // Build a map: area number -> markdown links.
   const grouped = {};
 
   icsFiles.forEach(filePath => {
@@ -40,8 +52,14 @@ function groupByArea(icsFiles) {
   return grouped;
 }
 
-// Format grouped links into <details> blocks
+/**
+ * Formats grouped links into markdown <details> blocks.
+ *
+ * @param {any} grouped Grouped link map.
+ * @returns Markdown string.
+ */
 function formatGroupedMarkdown(grouped) {
+  // Render the grouped links as expandable sections.
   return Object.entries(grouped)
     .sort(([a], [b]) => Number(a) - Number(b)) // sort by area number
     .map(([area, links]) => {
@@ -50,8 +68,13 @@ function formatGroupedMarkdown(grouped) {
     .join('\n\n');
 }
 
-// Update README.md between start/end markers
+/**
+ * Replaces the auto-generated calendar block in README.md.
+ *
+ * @param {any} newBlock New markdown block to insert.
+ */
 function updateReadme(newBlock) {
+  // Replace the auto-generated block in README.md.
   const startMarker = '<!-- auto-generated-calendar-links:start -->';
   const endMarker = '<!-- auto-generated-calendar-links:end -->';
 
@@ -77,3 +100,4 @@ const files = findIcsFiles(calendarsDir);
 const grouped = groupByArea(files);
 const markdown = formatGroupedMarkdown(grouped);
 updateReadme(markdown);
+

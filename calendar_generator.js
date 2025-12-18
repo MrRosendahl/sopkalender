@@ -14,14 +14,29 @@ const weekdayMap = {
 
 const lineEnding = '\r\n'; // Use CRLF for iCalendar format
 const descLineEnding = '\\n';
-const compareIgnorePrefixes = ['DTSTAMP', 'LAST-MODIFIED', 'SEQUENCE'];
+const compareIgnorePrefixes = ['DTSTAMP', 'LAST-MODIFIED', 'SEQUENCE']; // Fields ignored when checking for changes
 
+/**
+ * Extracts a single-line property value from a VEVENT block.
+ *
+ * @param {any} block The VEVENT text block.
+ * @param {any} prefix The property name to read (e.g., "UID").
+ * @returns The property value or null if missing.
+ */
 function getLineValue(block, prefix) {
+  // Extract a single-line property value from a VEVENT block.
   const match = block.match(new RegExp(`^${prefix}:(.*)$`, 'm'));
   return match ? match[1].trim() : null;
 }
 
+/**
+ * Normalizes a VEVENT block for change detection by removing volatile fields.
+ *
+ * @param {any} block The VEVENT text block.
+ * @returns A normalized string representation.
+ */
 function normalizeEventBlock(block) {
+  // Create a stable fingerprint by removing volatile properties.
   const lines = block.replace(/\r\n/g, '\n').split('\n').filter(Boolean);
   const filtered = lines.filter((line) => {
     return !compareIgnorePrefixes.some((prefix) => line.startsWith(`${prefix}:`));
@@ -29,7 +44,14 @@ function normalizeEventBlock(block) {
   return filtered.join('\n');
 }
 
+/**
+ * Parses existing .ics file events into a UID-indexed map.
+ *
+ * @param {any} filePath The calendar file path.
+ * @returns A map of UID to event metadata.
+ */
 function parseExistingEvents(filePath) {
+  // Build a UID -> event metadata map from the existing .ics file.
   if (!fs.existsSync(filePath)) {
     return new Map();
   }
@@ -55,7 +77,17 @@ function parseExistingEvents(filePath) {
   return events;
 }
 
+/**
+ * Inserts or replaces a property line within a VEVENT block.
+ *
+ * @param {any} lines VEVENT lines array.
+ * @param {any} prefix Property name to insert or update.
+ * @param {any} value Property value.
+ * @param {any} insertBefore Line to insert before if missing.
+ * @returns The updated lines array.
+ */
 function upsertLine(lines, prefix, value, insertBefore) {
+  // Replace or insert a property line in a VEVENT block.
   const line = `${prefix}:${value}`;
   const index = lines.findIndex((l) => l.startsWith(`${prefix}:`));
   if (index !== -1) {
@@ -73,7 +105,17 @@ function upsertLine(lines, prefix, value, insertBefore) {
   return lines;
 }
 
+/**
+ * Ensures DTSTAMP/LAST-MODIFIED/SEQUENCE are set inside a VEVENT.
+ *
+ * @param {any} event The VEVENT text block.
+ * @param {any} dtstamp DTSTAMP value to apply.
+ * @param {any} lastModified LAST-MODIFIED value or null to remove.
+ * @param {any} sequence SEQUENCE value to apply.
+ * @returns The updated VEVENT text block.
+ */
 function applyEventTimestamps(event, dtstamp, lastModified, sequence) {
+  // Ensure DTSTAMP/LAST-MODIFIED/SEQUENCE are consistent and in the VEVENT.
   const lines = event.split(lineEnding).filter((line) => line.length > 0);
   upsertLine(lines, 'DTSTAMP', dtstamp, 'END:VEVENT');
 
@@ -92,18 +134,19 @@ function applyEventTimestamps(event, dtstamp, lastModified, sequence) {
   return lines.join(lineEnding) + lineEnding;
 }
 
-/// <summary>
-/// Creates ICS events based on a weekly schedule and pickup day.
-/// </summary>
-/// <param name="area">The area identifier.</param>
-/// <param name="street">The name of the street.</param>
-/// <param name="year">The year of the events.</param>
-/// <param name="weeks">An array of week objects containing schedule information.</param>
-/// <param name="typeMap">A map of types to metadata (icon, description).</param>
-/// <param name="pickupDayName">The name of the pickup day (e.g., "Monday").</param>
-/// <returns>An array of ICS event objects.</returns>
+/**
+ * Creates ICS events based on a weekly schedule and pickup day.
+ *
+ * @param {any} area The area identifier.
+ * @param {any} street The name of the street.
+ * @param {any} year The year of the events.
+ * @param {any} weeks An array of week objects containing schedule information.
+ * @param {any} typeMap A map of types to metadata (icon, description).
+ * @param {any} pickupDayName The name of the pickup day (e.g., "Monday").
+ * @returns An array of ICS event objects.
+ */
 function createEventsForStreet(area, street, year, weeks, typeMap, pickupDayName, dtstamp) {
-    const baseDay = weekdayMap[pickupDayName.toLowerCase()]; // Get ISO weekday number
+    const baseDay = weekdayMap[pickupDayName.toLowerCase()]; // Map pickup day to ISO weekday
   
     if (baseDay === undefined) {
       console.warn(`⚠ Unknown pickup day "${pickupDayName}" for street "${street}" in area "${area}" — skipping`);
@@ -152,8 +195,15 @@ function createEventsForStreet(area, street, year, weeks, typeMap, pickupDayName
     });
   } 
 
+/**
+ * Builds the VCALENDAR header section.
+ *
+ * @param {any} calendarName Calendar name shown to clients.
+ * @param {any} calendarDescription Calendar description text.
+ * @returns Header string for the calendar.
+ */
 function getCalendarHeader(calendarName, calendarDescription) {
-  // Add lines at the top of the calendar
+  // Build the VCALENDAR header.
   const header =
     `BEGIN:VCALENDAR${lineEnding}` +
     `VERSION:2.0${lineEnding}` +
@@ -167,13 +217,14 @@ function getCalendarHeader(calendarName, calendarDescription) {
   return header;
 }
 
-/// <summary>
-/// Writes an ICS file to disk based on the provided events and calendar name.
-/// </summary>
-/// <param name="filePath">The file path to write the ICS file to.</param>
-/// <param name="events">An array of ICS event objects.</param>
-/// <param name="calendarName">The name of the calendar.</param>
-/// <param name="currentDate">The current Date.</param>
+/**
+ * Writes an ICS file to disk based on the provided events and calendar name.
+ *
+ * @param {any} filePath The file path to write the ICS file to.
+ * @param {any} events An array of ICS event objects.
+ * @param {any} calendarName The name of the calendar.
+ * @param {any} currentDate The current Date.
+ */
 function generateCalendar(filePath, events, calendarName, calendarDescription) {
   const header = getCalendarHeader(calendarName, calendarDescription); // Add lines at the top of the calendar
   const existingEvents = parseExistingEvents(filePath);
@@ -187,12 +238,14 @@ function generateCalendar(filePath, events, calendarName, calendarDescription) {
     const existing = existingEvents.get(uid);
 
     if (existing && existing.normalized === normalized) {
+      // Preserve timestamps and sequence for unchanged events.
       const eventDtstamp = getLineValue(event, 'DTSTAMP');
       const preservedDtstamp = existing.dtstamp || eventDtstamp;
       const preservedLastModified = existing.lastModified || preservedDtstamp;
       return applyEventTimestamps(event, preservedDtstamp, preservedLastModified, existing.sequence);
     }
 
+    // New or changed event: stamp with the current run's timestamp.
     const newDtstamp = getLineValue(event, 'DTSTAMP');
     return applyEventTimestamps(event, newDtstamp, newDtstamp);
   });
@@ -215,3 +268,4 @@ module.exports = {
   generateCalendar,
   createEventsForStreet,
 };
+
