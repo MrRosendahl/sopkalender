@@ -2,15 +2,15 @@ const fs = require('fs'); // Import file system module for reading and writing f
 const path = require('path'); // Import path module for file path manipulation
 const { execSync } = require('child_process'); // Import child_process module for executing shell commands
 const { ensureFolderExists } = require('./utils'); // Import utility functions
-const { generateCalendarsForAreaConfig } = require('./area_file_processor'); // Import area file processing functions
+const { generateCalendarsForAreaConfig } = require('./area_processor'); // Import area processing functions
 const {
   buildUpdatedConfigFromFile,
   writeUpdatedConfigToFile
-} = require('./areas/area-updater'); // Import area updater helpers
+} = require('./areas/area_generator'); // Import area generator helpers
 
 // Define paths for areas and calendars
 const areasFolder = path.resolve(__dirname, 'areas'); // Folder containing area JSON files
-const templatesFolder = path.resolve(__dirname, 'areas', 'templates'); // Folder containing template area JSON files
+const generatedAreasFolder = path.resolve(__dirname, 'areas', '_generated'); // Folder containing generated area JSON files
 const calendarPath = path.resolve(__dirname, 'calendars'); // Folder to store generated calendars
 
 function createDTSTAMP() {
@@ -32,7 +32,7 @@ try {
 
   const args = process.argv.slice(2);
   const writeAreaFiles = args.includes('--write-area-files');
-  const inputFolder = fs.existsSync(templatesFolder) ? templatesFolder : areasFolder;
+  const inputFolder = areasFolder;
 
   const areaFiles = fs
     .readdirSync(inputFolder) // Read all files in the input folder
@@ -48,17 +48,23 @@ try {
       return;
     }
 
-    if (writeAreaFiles) {
-      const outputPath = path.join(areasFolder, String(file));
+    if (writeAreaFiles) {      
+      ensureFolderExists(generatedAreasFolder);
+      const outputPath = path.join(generatedAreasFolder, String(file));
+      console.log(`🗺️  Outputting area file: ${outputPath}`);
       writeUpdatedConfigToFile(updatedConfig, outputPath, true);
     }
-
-    generateCalendarsForAreaConfig(updatedConfig, calendarPath, dtstamp, inputPath);
+    else {
+      console.log(`🗺️  Generating calendars for area config: areas/${file}`);
+      generateCalendarsForAreaConfig(updatedConfig, calendarPath, dtstamp, inputPath);
+    }    
   });
 
-  // Run update-readme-links.js after all files are processed
-  execSync('node update-readme-links.js', { stdio: 'inherit' });
-  console.log('✅ Successfully executed update-readme-links.js');
+  if (writeAreaFiles === false) {
+    // Run update-readme-links.js after all files are processed
+    execSync('node update-readme-links.js', { stdio: 'inherit' });
+    console.log('✅ Successfully executed update-readme-links.js');
+  }  
 } catch (err) {
   console.error('❌ Error during processing:', err);
 }
