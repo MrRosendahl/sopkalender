@@ -83,7 +83,7 @@ function getCalendarHeader(calendarName, calendarDescription) {
     `X-WR-CALNAME:${calendarName}${lineEnding}` +
     `X-WR-CALDESC:${calendarDescription}${lineEnding}` +
     `X-WR-TIMEZONE:UTC${lineEnding}` +	
-    `PRODID:adamgibbons/ics${lineEnding}` +
+    `PRODID:mrrosendahl/sopkalender${lineEnding}` +
     `METHOD:PUBLISH${lineEnding}` +
     `X-PUBLISHED-TTL:PT1H${lineEnding}`;
   return header;
